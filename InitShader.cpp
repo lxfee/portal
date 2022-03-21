@@ -1,51 +1,4 @@
-#ifndef __ANGEL_H__
-#define __ANGEL_H__
-
-//----------------------------------------------------------------------------
-// 
-// --- Include system headers ---
-//
-
-#include <cmath>
-#include <iostream>
-#include <vector>
-#include <string>
-#include <algorithm>
-#include <cstring>
-
-//  Define M_PI in the case it's not defined in the math header file
-#ifndef M_PI
-#  define M_PI  3.14159265358979323846
-#endif
-
-//----------------------------------------------------------------------------
-//
-// --- Include OpenGL header files and helpers ---
-//
-//   The location of these files vary by operating system.  We've included
-//     copies of open-soruce project headers in the "GL" directory local
-//     this this "include" directory.
-//
-
-#define GL_SILENCE_DEPRECATION
-
-#include <GL/glew.h>
-#include <GL/freeglut.h>
-#include <GL/freeglut_ext.h>
-
-// Define a helpful macro for handling offsets into buffer objects
-#define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
-#define Print(x)  do { std::cerr << #x " = " << (x) << std::endl; } while(0)
-
-// Keyboard action
-#define GLFW_PRESS 0
-#define GLFW_RELEASE 1
-
-// Key val
-#define GLFW_KEY_W 'w'
-#define GLFW_KEY_S 's'
-#define GLFW_KEY_A 'a'
-#define GLFW_KEY_D 'd'
+#include "Global.h"
 
 // Create a NULL-terminated string by reading the provided file
 static char*
@@ -141,7 +94,3 @@ InitShader(const char* vShaderFile, const char* fShaderFile)
 
     return program;
 }
-
-#endif // __ANGEL_H__
-
-
