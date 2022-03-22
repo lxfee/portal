@@ -5,8 +5,11 @@
 
 class Render {
     public:
+        ~Render();
         Render(Scene* scene);
         void render();
+        
     private:
         Scene* scene;
+        vector<Shader*> shaders;
 };

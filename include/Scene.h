@@ -9,7 +9,9 @@ class Scene {
         ~Scene();
         Scene();
         Scene(DirLight* _dirLight, PointLight* _pointLight);
-        void addModel(Model *model);
+        int addCamera(Camera* camera);
+        int addModel(Model *model);
+        void setLight(DirLight* _dirLight, PointLight* _pointLight);
         DirLight *getDirLight();
         PointLight* getPointLight();
         const vector<Camera*>& getCameras();

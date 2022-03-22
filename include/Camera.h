@@ -13,6 +13,10 @@ public:
 	// 处理相机的键盘操作
 	void keyboard(unsigned char key, int x, int y, int action);
 
+	// 处理相机的鼠标操作
+	void mouseMotion(float deltaX, float deltaY);
+	void mouseWheel(int button, int dir, int x, int y);
+
 	// 相机移动函数
 	glm::vec3 do_movement(float deltaTime);
 

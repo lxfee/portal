@@ -7,7 +7,10 @@
 class Play {
     public:
         Play(Scene* scene);
-        void control();
+        // 键盘操作
+        void keyboard(unsigned char key, int x, int y, int action);
+        void mouseMotion(float deltaX, float deltaY);
+	    void mouseWheel(int button, int dir, int x, int y);
     private:
         Scene* scene;
 };

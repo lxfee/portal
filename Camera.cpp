@@ -59,3 +59,42 @@ void Camera::keyboard(unsigned char key, int x, int y, int action) {
 	else if(action == GLFW_RELEASE)
     	keys[key] = false;
 }
+
+// 相机视角转动函数
+void Camera::mouseMotion(float deltaX, float deltaY) {
+	GLfloat sensitivity = 0.05f;
+	deltaX *= sensitivity;
+	deltaY *= sensitivity;
+
+	yaw += deltaX;
+	pitch += deltaY; 
+
+	float checkyaw = yaw - yawOffset;
+	float checkpitch = pitch - pitchOffset;
+
+	if(maxYaw < 180)  {
+		if(checkyaw > maxYaw) yaw = maxYaw + yawOffset;
+		if(checkyaw <-maxYaw) yaw =-maxYaw + yawOffset;
+	}
+	if(maxPitch < 180) {
+		if(checkpitch > maxPitch) pitch = maxPitch + pitchOffset;
+		if(checkpitch <-maxPitch) pitch =-maxPitch + pitchOffset;
+	}
+	glm::vec3 front;
+	front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+	front.y = sin(glm::radians(pitch));
+	front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+	at = glm::vec4(normalize(front), 0);
+}
+
+
+// 相机焦距改变
+void Camera::mouseWheel(int button, int dir, int x, int y) {
+	if (dir < 0) {
+		fov += 2;
+		if(fov > 100) fov = 100;
+	} else {
+		fov -= 2;
+		if(fov < 10) fov = 10;
+	}
+}

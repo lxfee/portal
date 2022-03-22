@@ -1,7 +1,6 @@
 #include "Shader.h"
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
-{
+Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     // 1. 从文件路径中获取顶点/片段着色器
     std::string vertexCode;
     std::string fragmentCode;
@@ -57,7 +56,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
     glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
     if(!success)
     {
-        glGetShaderInfoLog(vertex, 512, NULL, infoLog);
+        glGetShaderInfoLog(fragment, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     };
 
@@ -95,3 +94,7 @@ void Shader::setFloat(const std::string &name, float value) const
 { 
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value); 
 } 
+
+void Shader::setMat4(const std::string &name, glm::mat4 mat) const {
+    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}

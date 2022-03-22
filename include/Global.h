@@ -17,9 +17,6 @@
 
 using namespace std;
 
-#ifndef M_PI
-#  define M_PI  3.14159265358979323846
-#endif
 
 //----------------------------------------------------------------------------
 //
@@ -36,11 +33,9 @@ using namespace std;
 // Define a helpful macro for handling offsets into buffer objects
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
 #define Print(x)  do { std::cerr << #x " = " << (x) << std::endl; } while(0)
-unsigned int TextureFromFile(string path, string directory);
 // Keyboard action
 #define GLFW_PRESS 0
 #define GLFW_RELEASE 1
-
 // Key val
 #define GLFW_KEY_W 'w'
 #define GLFW_KEY_S 's'

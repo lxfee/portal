@@ -17,6 +17,7 @@ struct Texture {
     aiString path;  // 我们储存纹理的路径用于与其它纹理进行比较
 };
 
+
 class Mesh {
     public:
         /*  网格数据  */
@@ -25,7 +26,7 @@ class Mesh {
         vector<Texture> textures;
         /*  函数  */
         Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
-        void Draw(Shader& shader);
+        void Draw(Shader* shader);
     private:
         /*  渲染数据  */
         unsigned int VAO, VBO, EBO;
@@ -33,15 +34,14 @@ class Mesh {
         virtual void setupMesh();
 };
 
-class Model 
-{
+class Model {
     public:
         /*  函数   */
-        Model(char *path)
-        {
+        Model(char *path) {
             loadModel(path);
         }
-        void Draw(Shader shader);   
+        void Draw(Shader* shader);   
+        static unsigned int TextureFromFile(string path, string directory); 
     private:
         vector<Texture> textures_loaded;
         /*  模型数据  */

@@ -1,6 +1,8 @@
 #include "Model.h"
 #include "Shader.h"
 #include "Global.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures) {
     this->vertices = vertices;
@@ -37,11 +39,10 @@ void Mesh::setupMesh() {
     glBindVertexArray(0);
 }  
 
-void Mesh::Draw(Shader& shader) {
+void Mesh::Draw(Shader* shader) {
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
-    for(unsigned int i = 0; i < textures.size(); i++)
-    {
+    for(unsigned int i = 0; i < textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i); // 在绑定之前激活相应的纹理单元
         // 获取纹理序号（diffuse_textureN 中的 N）
         string number;
@@ -51,7 +52,7 @@ void Mesh::Draw(Shader& shader) {
         else if(name == "texture_specular")
             number = std::to_string(specularNr++);
 
-        shader.setInt(("material." + name + number).c_str(), i);
+        shader->setInt(("material." + name + number).c_str(), i);
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
     glActiveTexture(GL_TEXTURE0);
@@ -62,19 +63,16 @@ void Mesh::Draw(Shader& shader) {
     glBindVertexArray(0);
 }
 
-void Model::Draw(Shader shader)
-{
+void Model::Draw(Shader* shader) {
     for(unsigned int i = 0; i < meshes.size(); i++)
         meshes[i].Draw(shader);
 }
 
-void Model::loadModel(string path)
-{
+void Model::loadModel(string path) {
     Assimp::Importer import;
     const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);    
 
-    if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
-    {
+    if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)  {
         cout << "ERROR::ASSIMP::" << import.GetErrorString() << endl;
         return;
     }
@@ -83,11 +81,9 @@ void Model::loadModel(string path)
     processNode(scene->mRootNode, scene);
 }
 
-void Model::processNode(aiNode *node, const aiScene *scene)
-{
+void Model::processNode(aiNode *node, const aiScene *scene) {
     // 处理节点所有的网格（如果有的话）
-    for(unsigned int i = 0; i < node->mNumMeshes; i++)
-    {
+    for(unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]]; 
         meshes.push_back(processMesh(mesh, scene));         
     }
@@ -175,7 +171,7 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type,
         if(!skip)
         {   // 如果纹理还没有被加载，则加载它
             Texture texture;
-            // texture.id = TextureFromFile(str.C_Str(), directory);
+            texture.id = TextureFromFile(str.C_Str(), directory);
             texture.type = typeName;
             texture.path = str.C_Str();
             textures.push_back(texture);
@@ -187,3 +183,24 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type,
 
 
 
+unsigned int Model::TextureFromFile(string path, string directory) {
+    // 设置环绕方式
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);  
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); 
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // 纹理被缩小时，即一片纹理需要被一个像素表示，使用mipmap，用于减少计算量
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // 纹理被放大时，即一个像素需要被一片纹理表示，使用普通线性（注意不要用mipmap，会出错）
+    
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load((directory + path).c_str(), &width, &height, &nrChannels, 0);
+
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture); // 创建并绑定纹理
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data); // 创建纹理
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(data); // 读取完成，释放内存
+    return texture;    
+}
