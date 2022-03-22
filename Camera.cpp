@@ -31,8 +31,8 @@ glm::mat4 Camera::getProjectionMatrix() {
     }
 }
 
-glm::vec3 Camera::do_movement(float deltaTime) {
-	GLfloat cameraSpeed = 20.0f * (deltaTime / 1000);
+glm::vec3 Camera::do_movement(float frameTime) {
+	float cameraSpeed = 20.0f * (frameTime / 1000);
   	glm::vec3 translation = glm::vec4(0);
 	if(keys[GLFW_KEY_W] && isControl[GLFW_KEY_W]) 
 	  	translation += cameraSpeed * at;
@@ -62,7 +62,7 @@ void Camera::keyboard(unsigned char key, int x, int y, int action) {
 
 // 相机视角转动函数
 void Camera::mouseMotion(float deltaX, float deltaY) {
-	GLfloat sensitivity = 0.05f;
+	float sensitivity = 0.1f;
 	deltaX *= sensitivity;
 	deltaY *= sensitivity;
 

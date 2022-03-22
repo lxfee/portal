@@ -25,7 +25,7 @@ class Mesh {
         vector<unsigned int> indices;
         vector<Texture> textures;
         /*  函数  */
-        Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
+        Mesh(const vector<Vertex>& vertices, const vector<unsigned int>& indices, const vector<Texture>& textures);
         void Draw(Shader* shader);
     private:
         /*  渲染数据  */

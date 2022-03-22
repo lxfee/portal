@@ -11,8 +11,11 @@ out vec2 fTexture;
 uniform mat4 vp;
 
 void main() {
+
     vec4 position = vp * vec4(vPosition, 1.0);
-    fPosition = position.xyz / position.w;
+    gl_Position = position / position.w;
+
+    fPosition = vPosition;
     fNormal = vNormal;
     fTexture = vTexture;
 }

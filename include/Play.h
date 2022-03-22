@@ -11,6 +11,7 @@ class Play {
         void keyboard(unsigned char key, int x, int y, int action);
         void mouseMotion(float deltaX, float deltaY);
 	    void mouseWheel(int button, int dir, int x, int y);
+        void idle(float frameTime);
     private:
         Scene* scene;
 };

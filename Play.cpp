@@ -1,6 +1,10 @@
 #include "Play.h"
 
 Play::Play(Scene* scene) : scene(scene) {}
+void Play::idle(float frameTime) {
+	auto camera = scene->getCameras().front();
+	camera->do_movement(frameTime);
+}
 
 void Play::keyboard(unsigned char key, int x, int y, int action) {
 	auto camera = scene->getCameras().front();
