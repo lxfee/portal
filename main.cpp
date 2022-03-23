@@ -31,18 +31,12 @@ void keyboardDown(unsigned char key, int x, int y) {if(key == 033) exit(EXIT_SUC
 void keyboardUp(unsigned char key, int x, int y) {play->keyboard(key, x, y, GLFW_RELEASE);}
 void mouseWheel(int button, int dir, int x, int y) {play->mouseWheel(button, dir, x, y);}
 void mouseMotion(int x, int y) {
-	static bool first = true;
-	static int lastX = 0, lastY = 0;
-	if(first) {
-		lastX = x;
-		lastY = y;
-		first = false;
-	}
-	float deltaX = lastX - x;
-	float deltaY = y - lastY; // 注意这里是相反的，因为y坐标的范围是从下往上的
-	lastX = x;
-	lastY = y;
+	static int lastX = MIDWIDTH, lastY = MIDHEIGHT;
+	float deltaX = x - lastX;
+	float deltaY = lastY - y; // 注意这里是相反的，因为y坐标的范围是从下往上的
 	play->mouseMotion(deltaX, deltaY);
+	glutWarpPointer(MIDWIDTH, MIDHEIGHT);
+	
 }
 
 void init(int argc, char **argv) {
@@ -70,6 +64,7 @@ void init(int argc, char **argv) {
 	glutPassiveMotionFunc(mouseMotion);
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_ON);	
 	glutSetCursor(GLUT_CURSOR_FULL_CROSSHAIR);
+	// glutSetCursor(GLUT_CURSOR_NONE);
 }	
 
 /*----------------------------------------------Init---------------------------------------------*/
@@ -95,7 +90,7 @@ vector<Vertex> vex = {
 
 void build() { // 搭建场景
 
-	Model* obj = new Model("./models/namo/nanosuit.obj");
+	Model* obj = new Model("../models/namo/nanosuit.obj");
 	Camera* camera = new Camera();
 	scene = new Scene();
 	scene->addModel(obj);
@@ -104,8 +99,7 @@ void build() { // 搭建场景
 	play = new Play(scene);
 
 	mesh = new Mesh(vex, {0, 1, 2}, vector<Texture>());
-    shader = new Shader("./shaders/vshader.glsl", "./shaders/fshader.glsl");
-
+    shader = new Shader("../shaders/vshader.glsl", "../shaders/fshader.glsl");
 	glutWarpPointer(MIDWIDTH, MIDHEIGHT);
 	
 }
@@ -119,7 +113,8 @@ void display() { // 渲染场景
 	shader->use();
 	shader->setMat4("vp", camera->getProjectionMatrix() * camera->getViewMatrix());
 	mesh->Draw(shader);
-	// render->render();
+
+	render->render();
 	
 	glutSwapBuffers(); // 双缓冲，减少闪烁
 }

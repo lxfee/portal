@@ -7,7 +7,7 @@ Render::~Render() {
 }
 
 Render::Render(Scene* scene) : scene(scene) {
-    Shader* shader = new Shader("./shaders/vshader.glsl", "./shaders/fshader.glsl");
+    Shader* shader = new Shader("../shaders/vshader.glsl", "../shaders/fshader.glsl");
     shaders.push_back(shader);
 }
 
