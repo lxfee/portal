@@ -13,7 +13,7 @@ uniform mat4 vp;
 void main() {
 
     vec4 position = vp * vec4(vPosition, 1.0);
-    gl_Position = position / position.w;
+    gl_Position = position; // 此处不要用透视除法，如果提前进行透视除法，会出错。
 
     fPosition = vPosition;
     fNormal = vNormal;

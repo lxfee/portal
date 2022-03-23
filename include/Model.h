@@ -40,9 +40,12 @@ class Model {
         Model(char *path) {
             loadModel(path);
         }
+        Model(vector<Mesh> meshes) {
+            this->meshes = meshes;
+        }
         void Draw(Shader* shader);   
         static unsigned int TextureFromFile(string path, string directory); 
-    private:
+    // private:
         vector<Texture> textures_loaded;
         /*  模型数据  */
         vector<Mesh> meshes;

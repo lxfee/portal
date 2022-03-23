@@ -17,7 +17,6 @@ uniform Material material;
 
 
 void main() {
-    texture2D(material.texture_diffuse1, fTexture);
-	fColor = vec4(1.0,1.0,1.0,1.0);
+	fColor = texture2D(material.texture_diffuse1, fTexture);
 }
 

@@ -103,17 +103,19 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     for(unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         Vertex vertex;
-        glm::vec3 vector;
+        glm::vec3 vec;
         // 处理顶点位置、法线和纹理坐标
-        vector.x = mesh->mNormals[i].x;
-        vector.y = mesh->mNormals[i].y;
-        vector.z = mesh->mNormals[i].z;
-        vertex.Normal = vector;
+        vec.x = mesh->mVertices[i].x;
+        vec.y = mesh->mVertices[i].y;
+        vec.z = mesh->mVertices[i].z; 
+        vertex.Position = vec;
+
+        // cout << vec.x << " " << vec.y << " " << vec.z << endl;
         
-        vector.x = mesh->mNormals[i].x;
-        vector.y = mesh->mNormals[i].y;
-        vector.z = mesh->mNormals[i].z;
-        vertex.Normal = vector;
+        vec.x = mesh->mNormals[i].x;
+        vec.y = mesh->mNormals[i].y;
+        vec.z = mesh->mNormals[i].z;
+        vertex.Normal = vec;
         
         if(mesh->mTextureCoords[0]) // 网格是否有纹理坐标？
         {
@@ -147,7 +149,6 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
                                             aiTextureType_SPECULAR, "texture_specular");
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     }
-
     return Mesh(vertices, indices, textures);
 }
 
@@ -184,23 +185,32 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type,
 
 
 unsigned int Model::TextureFromFile(string path, string directory) {
-    // 设置环绕方式
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);  
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); 
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // 纹理被缩小时，即一片纹理需要被一个像素表示，使用mipmap，用于减少计算量
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // 纹理被放大时，即一个像素需要被一片纹理表示，使用普通线性（注意不要用mipmap，会出错）
-    
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load((directory + path).c_str(), &width, &height, &nrChannels, 0);
-
     unsigned int texture;
     glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture); // 创建并绑定纹理
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // 为当前绑定的纹理对象设置环绕、过滤方式
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);   
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data); // 创建纹理
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(data); // 读取完成，释放内存
-    return texture;    
+    // 加载并生成纹理
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load((directory + "/" + path).c_str(), &width, &height, &nrChannels, 0);
+    if (data) {
+        switch (nrChannels) { // 由于png有四通道，所以GL_RGB加载png时会出现纹理错误
+            case 3: 
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+                glGenerateMipmap(GL_TEXTURE_2D);
+                break;
+            case 4:
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+                glGenerateMipmap(GL_TEXTURE_2D);
+                break;
+        }
+    } else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+    return texture;
 }
