@@ -37,15 +37,20 @@ class Mesh {
 class Model {
     public:
         /*  函数   */
-        Model(char *path) {
+        Model(char *path) : translation(0), rotation(0), scale(1) {
             loadModel(path);
         }
-        Model(vector<Mesh> meshes) {
+        Model(vector<Mesh> meshes) : translation(0), rotation(0), scale(1) {
             this->meshes = meshes;
         }
         void Draw(Shader* shader);   
         static unsigned int TextureFromFile(string path, string directory); 
-    // private:
+        glm::mat4 getModelMatrix();
+        glm::vec3 translation;
+        glm::vec3 rotation; // 绕各个轴旋转的角度 
+        glm::vec3 scale; 
+
+    private:
         vector<Texture> textures_loaded;
         /*  模型数据  */
         vector<Mesh> meshes;
@@ -55,7 +60,7 @@ class Model {
         void processNode(aiNode *node, const aiScene *scene);
         Mesh processMesh(aiMesh *mesh, const aiScene *scene);
         vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, 
-                                             string typeName);
+                                             string typeName); 
 };
 
 

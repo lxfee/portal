@@ -40,22 +40,25 @@ void Mesh::setupMesh() {
 }  
 
 void Mesh::Draw(Shader* shader) {
-    unsigned int diffuseNr = 1;
-    unsigned int specularNr = 1;
+    unsigned int diffuseNr = 0;
+    unsigned int specularNr = 0;
     for(unsigned int i = 0; i < textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i); // 在绑定之前激活相应的纹理单元
         // 获取纹理序号（diffuse_textureN 中的 N）
         string number;
         string name = textures[i].type;
-        if(name == "texture_diffuse")
+        if(name == "textureDiffuse")
             number = std::to_string(diffuseNr++);
-        else if(name == "texture_specular")
+        else if(name == "textureSpecular")
             number = std::to_string(specularNr++);
 
-        shader->setInt(("material." + name + number).c_str(), i);
+        shader->setInt(("material." + name + "[" + number + "]").c_str(), i);
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
     glActiveTexture(GL_TEXTURE0);
+    
+    shader->setInt("material.diffuseNum", diffuseNr);
+    shader->setInt("material.specularNum", specularNr);
 
     // 绘制网格
     glBindVertexArray(VAO);
@@ -64,8 +67,10 @@ void Mesh::Draw(Shader* shader) {
 }
 
 void Model::Draw(Shader* shader) {
-    for(unsigned int i = 0; i < meshes.size(); i++)
+    shader->setMat4("model", getModelMatrix());
+    for(unsigned int i = 0; i < meshes.size(); i++) {
         meshes[i].Draw(shader);
+    }
 }
 
 void Model::loadModel(string path) {
@@ -143,10 +148,10 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     {
         aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
         vector<Texture> diffuseMaps = loadMaterialTextures(material, 
-                                            aiTextureType_DIFFUSE, "texture_diffuse");
+                                            aiTextureType_DIFFUSE, "textureDiffuse");
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
         vector<Texture> specularMaps = loadMaterialTextures(material, 
-                                            aiTextureType_SPECULAR, "texture_specular");
+                                            aiTextureType_SPECULAR, "textureSpecular");
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     }
     return Mesh(vertices, indices, textures);
@@ -213,4 +218,17 @@ unsigned int Model::TextureFromFile(string path, string directory) {
     }
     stbi_image_free(data);
     return texture;
+}
+
+glm::mat4 Model::getModelMatrix() {
+    glm::mat4 trans(1.0f);
+    trans = glm::translate(trans, translation);
+    
+    trans = glm::rotate(trans, glm::radians(rotation.x), glm::vec3(1.0, 0.0, 0.0));
+    trans = glm::rotate(trans, glm::radians(rotation.y), glm::vec3(0.0, 1.0, 0.0));
+    trans = glm::rotate(trans, glm::radians(rotation.z), glm::vec3(0.0, 0.0, 1.0));
+
+    trans = glm::scale(trans, scale);
+    
+    return trans;
 }

@@ -1,14 +1,5 @@
 #include "Scene.h"
 
-Scene::Scene() {
-    dirLight = nullptr;
-    pointLight = nullptr;
-}
-
-Scene::Scene(DirLight* _dirLight, PointLight* _pointLight) {
-    dirLight = _dirLight;
-    pointLight = _pointLight;   
-}
 
 Scene::~Scene() {
     for(auto obj : objects) {
@@ -17,40 +8,49 @@ Scene::~Scene() {
     for(auto camera : cameras) {
         delete camera;
     }
-    if(dirLight) delete dirLight;
-    if(pointLight) delete pointLight;
+    for(auto pointLight : pointLights) {
+        delete pointLight;
+    }
 }
 
-int Scene::addModel(Model* model) {
-    if(!model) return -1;
-    objects.push_back(model);   
-    return objects.size() - 1;
-}
+Scene::Scene() {
+    Model* obj1 = new Model("./models/robot/head.obj");
+	Model* obj2 = new Model("./models/namo/nanosuit.obj");
+    /***********  生成正方形和正方体 ***********/
+    Model* squre;
+	vector<Vertex> vertex = {
+		{glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(100.0f, 100.0f)},
+		{glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(100.0f, 0.0f)},
+		{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 100.0f)},
+	};
 
-DirLight * Scene::getDirLight() {
-    return dirLight;
-}
-PointLight* Scene::getPointLight() {
-    return pointLight;
-}
+    Texture tex;
+	auto id = Model::TextureFromFile("container.png", "./models/");
+	tex.id = id; tex.type = "textureDiffuse";
+	squre = new Model({Mesh(vertex, {0, 1, 2, 2, 3, 0}, {tex})});
+	squre->scale = glm::vec3(1000, 1000, 1000);
+	squre->rotation[0] = 90;
+    Model* lightCube = new Model("./models/cube/cube.obj");
+	/***********  生成正方形正方形和正方体 ***********/
 
-const vector<Model*>& Scene::getObjects() {
-    return objects;
+	
+
+    PointLight* pointLight = new PointLight();
+    Camera* camera = new Camera();
+
+    cameras.push_back(camera);
+    pointLights.push_back(pointLight);
+
+    pointLight->position = glm::vec3(2, 2, 0);
+    pointLight->ambient = glm::vec3(1);
+    pointLight->diffuse = glm::vec3(1);
+    pointLight->specular = glm::vec3(0.5);
+
+	
+    objects.push_back(lightCube);
+    objects.push_back(squre);
+    objects.push_back(obj1);
+	objects.push_back(obj2);
+
 }
-
-
-const vector<Camera*>& Scene::getCameras() {
-    return cameras;
-}
-
-void Scene::setLight(DirLight* _dirLight, PointLight* _pointLight) {
-    if(_dirLight) dirLight = _dirLight;
-    if(_pointLight) pointLight = _pointLight; 
-}
-
-int Scene::addCamera(Camera* camera) {
-    if(!camera) return -1;
-    cameras.push_back(camera);   
-    return cameras.size() - 1;
-}
-

@@ -15,11 +15,13 @@ const int HEIGHT = 800;
 const int MIDWIDTH  = WIDTH / 2;
 const int MIDHEIGHT = HEIGHT / 2;
 
+float frameTime = 0;
+float lastFrameTime = 0;
 
 Scene* scene;
 Play* play;
 Render* render;
-Model* squre;
+
 
 void display();
 void build();
@@ -52,10 +54,9 @@ void init(int argc, char **argv) {
 	glewExperimental = GL_TRUE;
 	glewInit(); // glew 要在 glut 初始化后初始化
 	glEnable(GL_DEPTH_TEST); // 开启深度测试
-	// glEnable(GL_CULL_FACE); // 开启背部剔除
+	glEnable(GL_CULL_FACE); // 开启背部剔除，如果找不到问题就关掉它
 
 	build(); // build中用到glew的函数，需要在glew初始化后初始化
-	
 	
 	glutKeyboardFunc(keyboardDown);
 	glutKeyboardUpFunc(keyboardUp);
@@ -71,40 +72,18 @@ void init(int argc, char **argv) {
 
 
 void idle() { // 统计单帧时间
-	static float frameTime = 0.0;
-	static float lastFrameTime = 0.0;
 	glutPostRedisplay();
 	GLfloat currentFrameTime = glutGet(GLUT_ELAPSED_TIME);
 	frameTime = currentFrameTime - lastFrameTime;
 	lastFrameTime = currentFrameTime;
-	play->idle(frameTime);
+	play->idle();
 }
 
-Shader* shader;
-
 void build() { // 搭建场景
-	// 生成正方形
-	vector<Vertex> vertex = {
-		{glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec2(0.0f, 1.0f)},
-	};
-	squre = new Model({Mesh(vertex, {0, 1, 2, 2, 3, 0}, {})});
-
-
-	Model* obj1 = new Model("./models/robot/head.obj");
-	Model* obj2 = new Model("./models/namo/nanosuit.obj");
-	Camera* camera = new Camera();
 	scene = new Scene();
-	scene->addModel(obj1);
-	scene->addModel(obj2);
-	scene->addCamera(camera);
 	render = new Render(scene);
 	play = new Play(scene);
 	glutWarpPointer(MIDWIDTH, MIDHEIGHT);
-
-	shader = new Shader("./shaders/vshader.glsl", "./shaders/fshader.glsl");
 }
 
 
@@ -116,7 +95,6 @@ void display() { // 渲染场景
 
 	render->render();
 
-	
 	glutSwapBuffers(); // 双缓冲，减少闪烁
 }
 

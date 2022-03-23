@@ -1,6 +1,4 @@
 #pragma once
-
-
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -41,5 +39,3 @@ using namespace std;
 #define GLFW_KEY_S 's'
 #define GLFW_KEY_A 'a'
 #define GLFW_KEY_D 'd'
-
-

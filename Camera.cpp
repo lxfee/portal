@@ -3,9 +3,6 @@
 Camera::Camera() { 
 	up = glm::vec3(0.0, 1.0, 0.0); // 初始UP
 	eye = glm::vec3(0.0, 0.0, 3.0); // 初始位置
-	for(int i = 0; i < sizeof keys; i++) keys[i] = false;
-	
-	
 	yaw = 0;
 	pitch = 0;
 	glm::vec3 front;
@@ -31,37 +28,29 @@ glm::mat4 Camera::getProjectionMatrix() {
     }
 }
 
-glm::vec3 Camera::do_movement(float frameTime) {
+void Camera::doMovement(unsigned char* KEYBUFFER) {
+	extern float frameTime;
 	float cameraSpeed = 10.0f * (frameTime / 1000);
   	glm::vec3 translation(0);
 	glm::vec3 right = glm::normalize(glm::cross(up, dir));
 	glm::vec3 updir = glm::normalize(glm::cross(dir, right));
 
-	if(keys[GLFW_KEY_W]) 
+	if(KEYBUFFER[GLFW_KEY_W]) 
 	  	translation += dir * cameraSpeed;
-  	if(keys[GLFW_KEY_S])
+  	if(KEYBUFFER[GLFW_KEY_S])
 	  	translation -= dir * cameraSpeed;
-  	if(keys[GLFW_KEY_A])
+  	if(KEYBUFFER[GLFW_KEY_A])
 	  	translation += right * cameraSpeed;
-  	if(keys[GLFW_KEY_D])
+  	if(KEYBUFFER[GLFW_KEY_D])
 	  	translation -= right * cameraSpeed;
-	if(keys[' ']) { // 上
+	if(KEYBUFFER[' ']) // 上
 		translation += updir * cameraSpeed;
-	}
-	if(keys['q']) { // 下
+	if(KEYBUFFER['q']) // 下
 		translation -= updir * cameraSpeed;
-	}
 	eye += translation;
-	return translation;
 }
 
-void Camera::keyboard(unsigned char key, int x, int y, int action) {
-	// 键盘事件处理
-	if(action == GLFW_PRESS)
-    	keys[key] = true;
-	else if(action == GLFW_RELEASE)
-    	keys[key] = false;
-}
+
 
 // 相机视角转动函数
 void Camera::mouseMotion(float deltaX, float deltaY) {
@@ -87,4 +76,9 @@ void Camera::mouseWheel(int button, int dir, int x, int y) {
 	if(fov >= 1.0f && fov <= 45.0f) fov -= dir;
 	if(fov <= 1.0f) fov = 1.0f;
 	if(fov >= 45.0f) fov = 45.0f;
+}
+
+void Camera::transCamera(Shader* shader) {
+	shader->setMat4("vp", getProjectionMatrix() * getViewMatrix());
+	shader->setVec3("eyePos", eye);
 }

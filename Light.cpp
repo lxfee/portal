@@ -1,30 +1,48 @@
 #include "Light.h"
 
-// DirLight
-DirLight::DirLight(glm::vec3 direction) : direction(direction) {}
-void DirLight::setLight(glm::vec3 _ambient, glm::vec3 _diffuse, glm::vec3 _specular) {
-    ambient = _ambient;
-    diffuse = _diffuse;
-    specular = _specular;
+DirLight::DirLight() {
+    
 }
 
-
-// PointLight
-PointLight::PointLight(glm::vec3 position) : position(position), model(nullptr) {}
-
-void PointLight::setLight(glm::vec3 _ambient, glm::vec3 _diffuse, glm::vec3 _specular) {
-    ambient = _ambient;
-    diffuse = _diffuse;
-    specular = _specular;
+void DirLight::transLight(const string &name, Shader* shader) {
+    shader->setVec3(name+".ambient", ambient);
+    shader->setVec3(name+".diffuse", diffuse);
+    shader->setVec3(name+".specular", specular);
+    shader->setVec3(name+".direction", direction);
 }
 
-void PointLight::setAttenuation(float _constant, float _linear, float _quadratic) {
-    constant = _constant;
-	linear = _linear;
-	quadratic = _quadratic;
+PointLight::PointLight() {
+    constant = 1.0f;
+    linear = 0.09f;
+    quadratic = 0.032f;
 }
 
-void PointLight::setModel(Model *_model) {
-    model = _model;
+void PointLight::transLight(const string &name, Shader* shader) {
+    shader->setVec3(name+".ambient", ambient);
+    shader->setVec3(name+".diffuse", diffuse);
+    shader->setVec3(name+".specular", specular);
+    shader->setVec3(name+".position", position);
+    shader->setFloat(name+".constant", constant);
+    shader->setFloat(name+".linear", linear);
+    shader->setFloat(name+".quadratic",quadratic);
 }
 
+void PointLight::doMovement(unsigned char* KEYBUFFER) {
+	extern float frameTime;
+	float cameraSpeed = 10.0f * (frameTime / 1000);
+  	glm::vec3 translation(0);
+
+	if(KEYBUFFER[GLFW_KEY_W]) 
+	  	translation.x += cameraSpeed;
+  	if(KEYBUFFER[GLFW_KEY_S])
+	  	translation.x -= cameraSpeed;
+  	if(KEYBUFFER[GLFW_KEY_A])
+	  	translation.y += cameraSpeed;
+  	if(KEYBUFFER[GLFW_KEY_D])
+	  	translation.y -= cameraSpeed;
+	if(KEYBUFFER[' ']) // 上
+		translation.z += cameraSpeed;
+	if(KEYBUFFER['q']) // 下
+		translation.z -= cameraSpeed;
+	position += translation;
+}
