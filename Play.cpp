@@ -7,7 +7,7 @@ Play::Play(Scene* scene) : scene(scene) {
 void Play::idle() {
 	extern float frameTime;
 	auto camera = scene->cameras.front();
-	auto light = scene->pointLights.front();
+	auto light = scene->dirLight;
 	static enum{CAMERA, LIGHT} status = CAMERA;
 
 	if(KEYBUFFER['1']) {

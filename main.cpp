@@ -11,7 +11,7 @@
 
 
 const int WIDTH = 800;
-const int HEIGHT = 800;
+const int HEIGHT = 600;
 const int MIDWIDTH  = WIDTH / 2;
 const int MIDHEIGHT = HEIGHT / 2;
 
@@ -43,7 +43,7 @@ void mouseMotion(int x, int y) {
 void init(int argc, char **argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE); // 窗口支持双重缓冲、深度测试、超采样
-	glutInitWindowPosition(10, 10);
+	glutInitWindowPosition(200, 50);
 	glutInitWindowSize(WIDTH, HEIGHT);
 	int mainWindow = glutCreateWindow("Portal");
 	glutIdleFunc(idle);
@@ -53,8 +53,6 @@ void init(int argc, char **argv) {
 
 	glewExperimental = GL_TRUE;
 	glewInit(); // glew 要在 glut 初始化后初始化
-	glEnable(GL_DEPTH_TEST); // 开启深度测试
-	glEnable(GL_CULL_FACE); // 开启背部剔除，如果找不到问题就关掉它
 
 	build(); // build中用到glew的函数，需要在glew初始化后初始化
 	
@@ -75,7 +73,14 @@ void idle() { // 统计单帧时间
 	glutPostRedisplay();
 	GLfloat currentFrameTime = glutGet(GLUT_ELAPSED_TIME);
 	frameTime = currentFrameTime - lastFrameTime;
-	lastFrameTime = currentFrameTime;
+	lastFrameTime= currentFrameTime;
+	static int cnt = 0;
+	cnt++;
+	if(cnt > 10) {
+		cout << "\r        \r" << (int)(1000 / frameTime);
+		cout.flush();
+		cnt = 0;
+	}
 	play->idle();
 }
 
@@ -88,11 +93,6 @@ void build() { // 搭建场景
 
 
 void display() { // 渲染场景
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // 设置背景颜色
-	glClear(GL_COLOR_BUFFER_BIT);
-	glClearDepth(1); // 深度缓冲初始值
-	glClear(GL_DEPTH_BUFFER_BIT); // 注意清理深度缓冲
-
 	render->render();
 
 	glutSwapBuffers(); // 双缓冲，减少闪烁

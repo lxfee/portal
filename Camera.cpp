@@ -30,10 +30,9 @@ glm::mat4 Camera::getProjectionMatrix() {
 
 void Camera::doMovement(unsigned char* KEYBUFFER) {
 	extern float frameTime;
-	float cameraSpeed = 10.0f * (frameTime / 1000);
+	float cameraSpeed = 20.0f * (frameTime / 1000);
   	glm::vec3 translation(0);
 	glm::vec3 right = glm::normalize(glm::cross(up, dir));
-	glm::vec3 updir = glm::normalize(glm::cross(dir, right));
 
 	if(KEYBUFFER[GLFW_KEY_W]) 
 	  	translation += dir * cameraSpeed;
@@ -44,9 +43,9 @@ void Camera::doMovement(unsigned char* KEYBUFFER) {
   	if(KEYBUFFER[GLFW_KEY_D])
 	  	translation -= right * cameraSpeed;
 	if(KEYBUFFER[' ']) // 上
-		translation += updir * cameraSpeed;
+		translation += up * cameraSpeed;
 	if(KEYBUFFER['q']) // 下
-		translation -= updir * cameraSpeed;
+		translation -= up * cameraSpeed;
 	eye += translation;
 }
 

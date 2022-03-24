@@ -48,26 +48,46 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     // 衰减
     float distance    = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
+    float attenuation = min(1.0, 1.0 / (0.00005 + light.constant + light.linear * distance + light.quadratic * (distance * distance)));    
     
     // 合并结果
-    vec3 ambient  = light.ambient  * vec3(texture(material.textureDiffuse[0], fTexture));
-    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.textureDiffuse[0], fTexture));
-    vec3 specular;
+    vec3 ambient, diffuse, specular;
+    ambient  = light.ambient  * vec3(texture(material.textureDiffuse[0], fTexture));
+    diffuse  = light.diffuse  * diff * vec3(texture(material.textureDiffuse[0], fTexture));
     if(material.specularNum == 0) specular = light.specular * spec * vec3(1.0, 1.0, 1.0);
     else specular = light.specular * spec * vec3(texture(material.textureSpecular[0], fTexture));
+    
+    
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;
     return (ambient + diffuse + specular);
 }
 
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
+    float shininess = 32;
+    vec3 lightDir = normalize(-light.direction);
+    // 漫反射着色
+    float diff = max(dot(normal, lightDir), 0.0);
+    // 镜面光着色
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    // 合并结果
+    vec3 ambient, diffuse, specular;
+    ambient  = light.ambient  * vec3(texture(material.textureDiffuse[0], fTexture));
+    diffuse  = light.diffuse  * diff * vec3(texture(material.textureDiffuse[0], fTexture));
+    if(material.specularNum == 0) specular = light.specular * spec * vec3(1.0, 1.0, 1.0);
+    else specular = light.specular * spec * vec3(texture(material.textureSpecular[0], fTexture));
+    return (ambient + diffuse + specular);     
+}
+
 void main() {
     vec3 viewDir = normalize(eyePos - fPosition);
     vec3 result = vec3(0);
     
-    result += CalcPointLight(pointLight, fNormal, fPosition, viewDir);
-    
+    // result += CalcPointLight(pointLight, fNormal, fPosition, viewDir);
+    result += CalcDirLight(dirLight, fNormal, viewDir);
+
     fColor = vec4(result, 1.0);
 }
 

@@ -3,12 +3,12 @@
 #include "Global.h"
 
 struct DirLight {
-    DirLight();
     glm::vec3 ambient;
     glm::vec3 diffuse;
     glm::vec3 specular;
     glm::vec3 direction;
     void transLight(const string &name, Shader* shader);
+    void doMovement(unsigned char* KEYBUFFER);
 };
 
 struct PointLight {

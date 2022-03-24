@@ -1,8 +1,5 @@
 #include "Light.h"
 
-DirLight::DirLight() {
-    
-}
 
 void DirLight::transLight(const string &name, Shader* shader) {
     shader->setVec3(name+".ambient", ambient);
@@ -31,7 +28,6 @@ void PointLight::doMovement(unsigned char* KEYBUFFER) {
 	extern float frameTime;
 	float cameraSpeed = 10.0f * (frameTime / 1000);
   	glm::vec3 translation(0);
-
 	if(KEYBUFFER[GLFW_KEY_W]) 
 	  	translation.x += cameraSpeed;
   	if(KEYBUFFER[GLFW_KEY_S])
@@ -46,3 +42,19 @@ void PointLight::doMovement(unsigned char* KEYBUFFER) {
 		translation.z -= cameraSpeed;
 	position += translation;
 }
+
+void DirLight::doMovement(unsigned char* KEYBUFFER) {
+	extern float frameTime;
+	float cameraSpeed = 10.0f * (frameTime / 1000);
+  	glm::vec3 translation(0);
+	if(KEYBUFFER[GLFW_KEY_W]) 
+	  	translation.x += cameraSpeed;
+  	if(KEYBUFFER[GLFW_KEY_S])
+	  	translation.x -= cameraSpeed;
+  	if(KEYBUFFER[GLFW_KEY_A])
+	  	translation.z += cameraSpeed;
+  	if(KEYBUFFER[GLFW_KEY_D])
+	  	translation.z -= cameraSpeed;
+	direction += translation;
+}
+

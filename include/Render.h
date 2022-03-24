@@ -11,5 +11,6 @@ class Render {
         
     private:
         Scene* scene;
-        vector<Shader*> shaders;
+        map<string, Shader*> shaders;
+        Model* floor; // 临时使用      
 };

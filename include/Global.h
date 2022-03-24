@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstring>
 #include <GL/glew.h>
+#include <map>
 #include <GL/freeglut.h>
 #include <GL/freeglut_ext.h>
 #include <glm/glm.hpp>
