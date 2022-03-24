@@ -3,33 +3,35 @@
 
 Scene::~Scene() {
     for(auto obj : objects) {
-        delete obj;
+        delete obj.second;
     }
     for(auto camera : cameras) {
-        delete camera;
+        delete camera.second;
     }
     for(auto pointLight : pointLights) {
         delete pointLight;
     }
-    delete pannel;
 }
 
 Scene::Scene() {
+    vector<Vertex> vertex = {
+		{glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(100.0f, 100.0f)},
+		{glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(100.0f, 0.0f)},
+		{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 100.0f)},
+	};
+    Texture tex = Texture::TextureFromFile("./models/container.png", "textureDiffuse");
+	Model* floor = new Model({Mesh(vertex, {0, 1, 2, 2, 3, 0}, {tex})});
+    floor->scale = glm::vec3(1000, 1000, 1000);
+	floor->rotation[0] = 90;
+
     Model* obj1 = new Model("./models/robot/head.obj");
 	Model* obj2 = new Model("./models/namo/nanosuit.obj");
-    
-	vector<Vertex> vertex = {
-		{glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0f)},
-		{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 1.0f)},
-	};
-	pannel = new Model({Mesh(vertex, {0, 1, 2, 2, 3, 0}, {})});
 
     PointLight* pointLight = new PointLight();
     Camera* camera = new Camera();
 
-    cameras.push_back(camera);
+    cameras["camera"] = camera;
     pointLights.push_back(pointLight);
     dirLight = new DirLight();
 
@@ -44,7 +46,8 @@ Scene::Scene() {
     dirLight->specular = glm::vec3(0.5); // 镜面反射
 	
     
-    objects.push_back(obj1);
-	objects.push_back(obj2);
+    objects["head"] = obj1;
+	objects["nano"] = obj2;
+    objects["floor"] = floor;
 
 }

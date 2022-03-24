@@ -6,7 +6,7 @@ Play::Play(Scene* scene) : scene(scene) {
 
 void Play::idle() {
 	extern float frameTime;
-	auto camera = scene->cameras.front();
+	auto camera = scene->cameras["camera"];
 	auto light = scene->dirLight;
 	static enum{CAMERA, LIGHT} status = CAMERA;
 
@@ -31,12 +31,12 @@ void Play::keyboard(unsigned char key, int x, int y, int action) {
 }
 
 void Play::mouseMotion(float deltaX, float deltaY) {
-	auto camera = scene->cameras.front();
+	auto camera = scene->cameras["camera"];
 	camera->mouseMotion(deltaX, deltaY);
 }
 
 
 void Play::mouseWheel(int button, int dir, int x, int y) {
-	auto camera = scene->cameras.front();
+	auto camera = scene->cameras["camera"];
 	camera->mouseWheel(button, dir, x, y);
 }

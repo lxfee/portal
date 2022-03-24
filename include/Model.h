@@ -14,7 +14,11 @@ struct Vertex {
 struct Texture {
     unsigned int id;
     string type;
-    aiString path;  // 我们储存纹理的路径用于与其它纹理进行比较
+    string path;  // 我们储存纹理的路径用于与其它纹理进行比较
+    static Texture TextureFromFile(string path, string type);
+    static Texture BoxTextureFromFile(vector<string> path, string type);
+    static Texture TextureForFramebufferColor(string name, string type, int width, int height);
+    static Texture TextureForFramebufferDepthSTENCIL(string name, string type, int width, int height);
 };
 
 
@@ -44,12 +48,11 @@ class Model {
             this->meshes = meshes;
         }
         void Draw(Shader* shader);   
-        static unsigned int TextureFromFile(string path, string directory); 
+        void addTexture(Texture tex);
         glm::mat4 getModelMatrix();
         glm::vec3 translation;
         glm::vec3 rotation; // 绕各个轴旋转的角度 
         glm::vec3 scale; 
-
     private:
         vector<Texture> textures_loaded;
         /*  模型数据  */

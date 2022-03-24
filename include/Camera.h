@@ -32,11 +32,11 @@ public:
 	#undef near
 	#undef far
 	float near = 0.1;
-	float far = 1000.0;
+	float far = 100.0;
 	// 透视投影参数，单位：度
 	float fov = 45.0;
     // 长宽度比例
-	float aspect = 1.0;
+	float aspect = 1.777;
 	// 正交投影参数
 	float scale = 1;
 

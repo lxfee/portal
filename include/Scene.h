@@ -10,7 +10,6 @@ class    Scene {
         Scene();
         DirLight* dirLight;
         vector<PointLight*> pointLights;
-        vector<Camera*> cameras;
-        vector<Model*> objects;
-        Model* pannel;
+        map<string, Camera*> cameras;
+        map<string, Model*> objects;
 };
