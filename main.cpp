@@ -27,7 +27,7 @@ void idle() {
 	GLfloat currentFrameTime = glutGet(GLUT_ELAPSED_TIME);
 	frameTime = currentFrameTime - lastFrameTime;
 	lastFrameTime= currentFrameTime;
-	cout << "\r        \r" << (int)(1000 / frameTime);
+	// cout << "\r        \r" << (int)(1000 / frameTime);
 	play->idle();
 }
 

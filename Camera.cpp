@@ -78,6 +78,7 @@ void Camera::mouseWheel(int button, int dir, int x, int y) {
 }
 
 void Camera::transCamera(Shader* shader) {
-	shader->setMat4("vp", getProjectionMatrix() * getViewMatrix());
+	shader->setMat4("view", getViewMatrix());
+	shader->setMat4("projection", getProjectionMatrix());
 	shader->setVec3("eyePos", eye);
 }

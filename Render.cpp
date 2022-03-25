@@ -45,7 +45,7 @@ Render::~Render() {
     delete scene;
 }
 
-void Render::glClear(GLbitfield mask) {
+void Render::glClear(GLbitfield mask) { // 代理glClear，避免
     glEnable(GL_SCISSOR_TEST);
     glScissor(currentWindow.x, currentWindow.y, currentWindow.width, currentWindow.height);
     ::glClear(mask);
@@ -54,46 +54,44 @@ void Render::glClear(GLbitfield mask) {
 
 Render::Render(Scene* scene, int width, int height) : scene(scene), width(width), height(height), currentWindow(0, 0, width, height) {
     Shader* shader = new Shader("./shaders/vshader.glsl", "./shaders/fshader.glsl");
-    Shader* cshader = new Shader("./shaders/vshader.glsl", "./shaders/color.glsl");
+    Shader* skyBoxShader = new Shader("./shaders/vSkyBox.glsl", "./shaders/fSkyBox.glsl");
+    Shader* gshader = new Shader("./shaders/vshader.glsl", "./shaders/fshader.glsl", "././shaders/gshader.glsl");
     shaders["shader"] = shader;
-    shaders["color"] = cshader;
+    shaders["skyBox"] = skyBoxShader;
+    shaders["gshader"] = gshader;
     
     // glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // 设置背景颜色
     glClearColor(0.5, 0.5, 0.5, 1); // 设置背景颜色
 	glClearDepth(1); // 深度缓冲初始值
     glEnable(GL_DEPTH_TEST); // 开启深度测试
     glEnable(GL_STENCIL_TEST); // 开启模板测试
-	glEnable(GL_CULL_FACE); // 开启背部剔除
-    
+	// glEnable(GL_CULL_FACE); // 开启背部剔除，开了天空盒会失效，不需要的时候要关掉
 }
 
 void Render::render() {
     auto camera = scene->cameras["camera"];
-    Shader* shader = shaders["shader"];
     auto dirLight = scene->dirLight;
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    Shader* shader = shaders["gshader"];
     shader->use();
+    shader->setFloat("time", (float)glutGet(GLUT_ELAPSED_TIME) / 1000);
     dirLight->transLight("dirLight", shader);
     camera->transCamera(shader);
     for(auto obj : scene->objects) {
+        if(obj.first == "skyBox") continue;
         obj.second->Draw(shader);
     }
+
+    shader = shaders["skyBox"];
+    shader->use();
+    camera->transCamera(shader);
+    shader->setMat4("view", glm::mat4(glm::mat3(camera->getViewMatrix()))); // 天空盒不随视线移动
+    scene->objects["skyBox"]->Draw(shader);
 }
 
 
 void Render::debug() {
-    auto camera = scene->cameras["camera"];
-    Shader* shader = shaders["color"];
-    auto dirLight = scene->dirLight;
-    
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shader->use();
-    dirLight->transLight("dirLight", shader);
-    camera->transCamera(shader);
-    for(auto obj : scene->objects) {
-        obj.second->Draw(shader);
-    }
 }

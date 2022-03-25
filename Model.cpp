@@ -44,16 +44,20 @@ void Mesh::Draw(Shader* shader) {
     unsigned int specularNr = 0;
     for(unsigned int i = 0; i < textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i); // 在绑定之前激活相应的纹理单元
-        // 获取纹理序号（diffuse_textureN 中的 N）
         string number;
         string name = textures[i].type;
-        if(name == "textureDiffuse")
+        if(name == "textureDiffuse") {
             number = std::to_string(diffuseNr++);
-        else if(name == "textureSpecular")
+            shader->setInt(("material." + name + "[" + number + "]").c_str(), i);
+            glBindTexture(GL_TEXTURE_2D, textures[i].id);
+        } else if(name == "textureSpecular") {
             number = std::to_string(specularNr++);
-
-        shader->setInt(("material." + name + "[" + number + "]").c_str(), i);
-        glBindTexture(GL_TEXTURE_2D, textures[i].id);
+            shader->setInt(("material." + name + "[" + number + "]").c_str(), i);
+            glBindTexture(GL_TEXTURE_2D, textures[i].id);
+        } else if(name == "cubeTexture") {
+            shader->setInt(name.c_str(), i);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, textures[i].id);
+        }
     }
     glActiveTexture(GL_TEXTURE0);
     
