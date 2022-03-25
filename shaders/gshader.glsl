@@ -26,12 +26,14 @@ vec3 GetNormal() {
    return normalize(cross(a, b));
 }
 
-void main() {    
-    vec3 normal = GetNormal();
+void main() {
+    // vec3 normal = GetNormal();
     
     for(int i = 0; i < 3; i++) {
-        gl_Position = explode(gl_in[i].gl_Position, normal);
-        fPosition = vec3(explode(vec4(gs_in[i].position, 1.0), gs_in[i].normal));
+        // gl_Position = explode(gl_in[i].gl_Position, normal);
+        gl_Position = gl_in[i].gl_Position;
+        // fPosition = vec3(explode(vec4(gs_in[i].position, 1.0), gs_in[i].normal));
+        fPosition = gs_in[i].position;
         fTexture = gs_in[i].texCoords;
         fNormal = gs_in[i].normal;
         EmitVertex();

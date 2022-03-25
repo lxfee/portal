@@ -39,7 +39,7 @@ void Mesh::setupMesh() {
     glBindVertexArray(0);
 }  
 
-void Mesh::Draw(Shader* shader) {
+void Mesh::Draw(Shader* shader, int amount) {
     unsigned int diffuseNr = 0;
     unsigned int specularNr = 0;
     for(unsigned int i = 0; i < textures.size(); i++) {
@@ -66,14 +66,18 @@ void Mesh::Draw(Shader* shader) {
 
     // 绘制网格
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    if(amount > 1) {
+        glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, amount);
+    } else {
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    }
     glBindVertexArray(0);
 }
 
-void Model::Draw(Shader* shader) {
-    shader->setMat4("model", getModelMatrix());
+void Model::Draw(Shader* shader, int amount) {
+    // shader->setMat4("model", getModelMatrix()); // 临时
     for(unsigned int i = 0; i < meshes.size(); i++) {
-        meshes[i].Draw(shader);
+        meshes[i].Draw(shader, amount);
     }
 }
 
@@ -195,6 +199,20 @@ glm::mat4 Model::getModelMatrix() {
     return trans;
 }
 
+// locate: 代表矩阵在着色器中的起点。顶点属性最大允许的数据大小等于一个vec4。因为一个mat4本质上是4个vec4，需要为这个矩阵预留4个顶点属性。
+// 这意味着下一个可用位置是 locate + 4
+void Model::setInstanceMatrix(int locate, int amount, glm::mat4 InstanceMatrix[]) {
+    // 顶点缓冲对象
+    if(!buffer) glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &InstanceMatrix[0], GL_STATIC_DRAW);
+
+    for(unsigned int i = 0; i < meshes.size(); i++) {
+        meshes[i].setInstanceMatrix(locate);
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void Model::addTexture(Texture tex) {
     for(unsigned int j = 0; j < textures_loaded.size(); j++) {
         if(std::strcmp(textures_loaded[j].path.c_str(), tex.path.c_str()) == 0) {
@@ -206,6 +224,20 @@ void Model::addTexture(Texture tex) {
         mesh.textures.push_back(tex);
     }
 }
+
+
+void Mesh::setInstanceMatrix(int locate) {
+    glBindVertexArray(VAO);
+    // 顶点属性
+    GLsizei vec4Size = sizeof(glm::vec4);
+    for(int i = 0; i < 4; i++) {
+        glEnableVertexAttribArray(locate + i); 
+        glVertexAttribPointer(locate + i, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(i * vec4Size));
+        glVertexAttribDivisor(locate + i, 1);
+    }
+    glBindVertexArray(0);
+}
+
 
 Texture Texture::TextureFromFile(string path, string type) {
     unsigned int id;

@@ -51,4 +51,6 @@ class Render {
         void glClear(GLbitfield mask); // 使用裁剪和视口缩放，实现子窗口
         int width, height;
         Window currentWindow;
+        glm::mat4 *modelMatrices; // 临时
+        unsigned int amount;
 };

@@ -30,7 +30,8 @@ class Mesh {
         vector<Texture> textures;
         /*  函数  */
         Mesh(const vector<Vertex>& vertices, const vector<unsigned int>& indices, const vector<Texture>& textures);
-        void Draw(Shader* shader);
+        void Draw(Shader* shader, int amount = 1);
+        void setInstanceMatrix(int locate);
     private:
         /*  渲染数据  */
         unsigned int VAO, VBO, EBO;
@@ -41,19 +42,21 @@ class Mesh {
 class Model {
     public:
         /*  函数   */
-        Model(char *path) : translation(0), rotation(0), scale(1) {
+        Model(char *path) : translation(0), rotation(0), scale(1), buffer(0) {
             loadModel(path);
         }
-        Model(vector<Mesh> meshes) : translation(0), rotation(0), scale(1) {
+        Model(vector<Mesh> meshes) : translation(0), rotation(0), scale(1), buffer(0) {
             this->meshes = meshes;
         }
-        void Draw(Shader* shader);   
+        void Draw(Shader* shader, int amount = 1);   
         void addTexture(Texture tex);
+        void setInstanceMatrix(int locate, int amount, glm::mat4 InstanceMatrix[]);
         glm::mat4 getModelMatrix();
         glm::vec3 translation;
         glm::vec3 rotation; // 绕各个轴旋转的角度 
         glm::vec3 scale; 
     private:
+        unsigned int buffer; // 实例化矩阵缓存
         vector<Texture> textures_loaded;
         /*  模型数据  */
         vector<Mesh> meshes;

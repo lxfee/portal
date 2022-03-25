@@ -96,7 +96,6 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geo
         glGetProgramInfoLog(ID, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
     }
-    cout << ID << endl;
     // 删除着色器，它们已经链接到我们的程序中了，已经不再需要了
     glDeleteShader(vertex);
     glDeleteShader(fragment);
