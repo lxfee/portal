@@ -13,7 +13,7 @@ class FrameBuffer {
         FrameBuffer();
         ~FrameBuffer();
         void attachColor(Texture tex);
-        void attachDepthStencil(Texture tex);
+        void attachDepth(Texture tex);
         void active();
         static void restore();
         bool CheckComplete();
@@ -35,19 +35,20 @@ class Render {
         }
         void render();   
         
-        void debug(Window window) {
+        void shadow(Window window) {
             currentWindow = window;
             glViewport(window.x, window.y, window.width, window.height);
-            debug();
+            shadow();
             currentWindow = Window(0, 0, width, height);
             glViewport(0, 0, width, height);
         }
-        void debug();
+        void shadow();
 
     private:
         Scene* scene;
         map<string, Shader*> shaders;
         FrameBuffer fb; 
+        Texture shadowMap; // 临时
         void glClear(GLbitfield mask); // 使用裁剪和视口缩放，实现子窗口
         int width, height;
         Window currentWindow;

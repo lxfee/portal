@@ -28,6 +28,7 @@ void Play::idle() {
 			scene->cameras["sCamera"]->doMovement(KEYBUFFER);
 			break; 
 	}
+	scene->cameras["sCamera"]->dir = normalize(scene->dirLight->direction);
 }
 
 void Play::keyboard(unsigned char key, int x, int y, int action) {

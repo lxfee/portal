@@ -18,7 +18,7 @@ struct Texture {
     static Texture TextureFromFile(string path, string type);
     static Texture BoxTextureFromFile(vector<string> path, string type);
     static Texture TextureForFramebufferColor(string name, string type, int width, int height);
-    static Texture TextureForFramebufferDepthSTENCIL(string name, string type, int width, int height);
+    static Texture TextureForFramebufferDepth(string name, string type, int width, int height);
 };
 
 

@@ -10,6 +10,7 @@ Camera::Camera() {
 Camera::~Camera() {}
 
 glm::mat4 Camera::getViewMatrix() {
+	mouseMotion(0, 0);
 	return glm::lookAt(eye, dir + eye, up);
 }
 
@@ -53,10 +54,11 @@ void Camera::mouseMotion(float deltaX, float deltaY) {
 	glm::vec3 right = glm::normalize(glm::cross(up, dir));
 	glm::vec3 front = glm::normalize(glm::cross(right, up));
 	float yaw = glm::degrees(atan2(front.z, front.x));
+	if(isnan(yaw)) yaw = 0;
 	pitch += sensitivity * deltaY;
 	yaw += sensitivity * deltaX;
-	if(pitch > 89.0) pitch = 89.0;
-	if(pitch < -89.0) pitch = -89.0;
+	if(pitch > 89.9) pitch = 89.9;
+	if(pitch < -89.9) pitch = -89.9;
 	dir.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
 	dir.y = sin(glm::radians(pitch));
 	dir.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));

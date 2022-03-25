@@ -14,7 +14,6 @@ const int MIDHEIGHT = HEIGHT / 2;
 
 float frameTime = 0;
 float lastFrameTime = 0;
-bool DEBUG;
 
 Scene* scene;
 Play* play;
@@ -27,7 +26,7 @@ void idle() {
 	GLfloat currentFrameTime = glutGet(GLUT_ELAPSED_TIME);
 	frameTime = currentFrameTime - lastFrameTime;
 	lastFrameTime= currentFrameTime;
-	// cout << "\r        \r" << (int)(1000 / frameTime);
+	cout << "\r        \r" << (int)(1000 / frameTime);
 	play->idle();
 }
 
@@ -54,7 +53,6 @@ void build() {
 
 void display() { 
 	render->render();
-	if(DEBUG) render->debug(Window(WIDTH-400, 0, 400, 400));
 	glutSwapBuffers(); // 双缓冲，减少闪烁
 }
 
@@ -67,7 +65,6 @@ void display() {
 void keyboardDown(unsigned char key, int x, int y) {
 	switch(key) {
 		case 033: exit(EXIT_SUCCESS); 
-		case '=': DEBUG ^= 1; break;
 		default: play->keyboard(key, x, y, GLFW_PRESS);
 	}		
 }

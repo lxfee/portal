@@ -14,15 +14,7 @@ Scene::~Scene() {
 }
 
 Scene::Scene() {
-    vector<Vertex> vertex = {
-		{glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(100.0f, 100.0f)},
-		{glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(100.0f, 0.0f)},
-		{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 100.0f)},
-	};
-	Model* floor = new Model({Mesh(vertex, {0, 1, 2, 2, 3, 0}, {Texture::TextureFromFile("./models/container.png", "textureDiffuse")})});
-    floor->scale = glm::vec3(1000);
-	floor->rotation[0] = 90;
+    
 
     vector<string> skyBoxPath = {
         "./models/skyBox/right.jpg",
@@ -51,16 +43,20 @@ Scene::Scene() {
     dirLight->specular = glm::vec3(0.5); // 镜面反射
 
 
+    
+
     Camera* camera = new Camera();
     cameras["camera"] = camera;
 
     Camera* sCamera = new Camera();
-    sCamera->projMode = ORTHO;
-    sCamera->eye = glm::vec3(0,60, 0);
-    sCamera->scale = 8;
-    sCamera->dir = glm::vec3(0, -1, 0);
-    
     cameras["sCamera"] = sCamera;
+    sCamera->projMode = ORTHO;
+    sCamera->eye = glm::vec3(0, 60, 0);
+    sCamera->dir = glm::vec3(0, -0.9, 0.1);
+    sCamera->scale = 8;
+    
+    
+    
 
 
     // 加载模型文件
@@ -71,7 +67,7 @@ Scene::Scene() {
     
     objects["head"] = head;
 	objects["nano"] = nano;
-    objects["floor"] = floor;
+    // objects["floor"] = floor;
     objects["skyBox"] = skyBox;
     // objects["cube"] = cube;
 

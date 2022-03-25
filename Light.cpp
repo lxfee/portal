@@ -26,7 +26,7 @@ void PointLight::transLight(const string &name, Shader* shader) {
 
 void PointLight::doMovement(unsigned char* KEYBUFFER) {
 	extern float frameTime;
-	float cameraSpeed = 10.0f * (frameTime / 1000);
+	float cameraSpeed = 1.0f * (frameTime / 1000);
   	glm::vec3 translation(0);
 	if(KEYBUFFER[GLFW_KEY_W]) 
 	  	translation.x += cameraSpeed;
@@ -45,7 +45,7 @@ void PointLight::doMovement(unsigned char* KEYBUFFER) {
 
 void DirLight::doMovement(unsigned char* KEYBUFFER) {
 	extern float frameTime;
-	float cameraSpeed = 10.0f * (frameTime / 1000);
+	float cameraSpeed = 1.0f * (frameTime / 1000);
   	glm::vec3 translation(0);
 	if(KEYBUFFER[GLFW_KEY_W]) 
 	  	translation.x += cameraSpeed;
