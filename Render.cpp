@@ -55,7 +55,7 @@ void Render::glClear(GLbitfield mask) { // 代理glClear，避免
 Render::Render(Scene* scene, int width, int height) : scene(scene), width(width), height(height), currentWindow(0, 0, width, height) {
     Shader* shader = new Shader("./shaders/vshader.glsl", "./shaders/fshader.glsl");
     Shader* skyBoxShader = new Shader("./shaders/vSkyBox.glsl", "./shaders/fSkyBox.glsl");
-    Shader* gshader = new Shader("./shaders/vshader.glsl", "./shaders/fshader.glsl", "././shaders/gshader.glsl");
+    Shader* gshader = new Shader("./shaders/vshader.glsl", "./shaders/fshader.glsl", "./shaders/gshader.glsl");
     shaders["shader"] = shader;
     shaders["skyBox"] = skyBoxShader;
     shaders["gshader"] = gshader;
