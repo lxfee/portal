@@ -75,7 +75,7 @@ void Mesh::Draw(Shader* shader, int amount) {
 }
 
 void Model::Draw(Shader* shader, int amount) {
-    // shader->setMat4("model", getModelMatrix()); // 临时
+    shader->setMat4("model", getModelMatrix()); // 应用变换。
     for(unsigned int i = 0; i < meshes.size(); i++) {
         meshes[i].Draw(shader, amount);
     }

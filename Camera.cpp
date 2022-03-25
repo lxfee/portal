@@ -3,14 +3,7 @@
 Camera::Camera() { 
 	up = glm::vec3(0.0, 1.0, 0.0); // 初始UP
 	eye = glm::vec3(0.0, 0.0, 3.0); // 初始位置
-	yaw = 0;
-	pitch = 0;
-	glm::vec3 front;
-	front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-	front.y = sin(glm::radians(pitch));
-	front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-	dir = glm::vec4(normalize(front), 0); // 初始朝向
-
+	dir = glm::vec3(0.0, 0.0, -1.0); // 初始up
 	projMode = PERSPECTIVE;
 };
 
@@ -32,12 +25,14 @@ void Camera::doMovement(unsigned char* KEYBUFFER) {
 	extern float frameTime;
 	float cameraSpeed = 20.0f * (frameTime / 1000);
   	glm::vec3 translation(0);
+	dir = normalize(dir);
 	glm::vec3 right = glm::normalize(glm::cross(up, dir));
+	glm::vec3 front = glm::normalize(glm::cross(right, up));
 
 	if(KEYBUFFER[GLFW_KEY_W]) 
-	  	translation += dir * cameraSpeed;
+	  	translation += front * cameraSpeed;
   	if(KEYBUFFER[GLFW_KEY_S])
-	  	translation -= dir * cameraSpeed;
+	  	translation -= front * cameraSpeed;
   	if(KEYBUFFER[GLFW_KEY_A])
 	  	translation += right * cameraSpeed;
   	if(KEYBUFFER[GLFW_KEY_D])
@@ -54,19 +49,18 @@ void Camera::doMovement(unsigned char* KEYBUFFER) {
 // 相机视角转动函数
 void Camera::mouseMotion(float deltaX, float deltaY) {
 	float sensitivity = 0.2f;
-
+	float pitch = glm::degrees(asin(dir.y));
+	glm::vec3 right = glm::normalize(glm::cross(up, dir));
+	glm::vec3 front = glm::normalize(glm::cross(right, up));
+	float yaw = glm::degrees(atan2(front.z, front.x));
+	pitch += sensitivity * deltaY;
 	yaw += sensitivity * deltaX;
-	pitch += sensitivity * deltaY; 
-
-
-	if(pitch > 89.0f) pitch =  89.0f;
-	if(pitch < -89.0f) pitch = -89.0f;
-
-	glm::vec3 front;
-	front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-	front.y = sin(glm::radians(pitch));
-	front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-	dir = glm::vec4(normalize(front), 0);
+	if(pitch > 89.0) pitch = 89.0;
+	if(pitch < -89.0) pitch = -89.0;
+	dir.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+	dir.y = sin(glm::radians(pitch));
+	dir.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+	dir = glm::normalize(dir);
 }
 
 

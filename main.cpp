@@ -27,7 +27,7 @@ void idle() {
 	GLfloat currentFrameTime = glutGet(GLUT_ELAPSED_TIME);
 	frameTime = currentFrameTime - lastFrameTime;
 	lastFrameTime= currentFrameTime;
-	cout << "\r        \r" << (int)(1000 / frameTime);
+	// cout << "\r        \r" << (int)(1000 / frameTime);
 	play->idle();
 }
 
@@ -54,7 +54,7 @@ void build() {
 
 void display() { 
 	render->render();
-	if(DEBUG) render->debug(Window(WIDTH-200, 0, 200, 200));
+	if(DEBUG) render->debug(Window(WIDTH-400, 0, 400, 400));
 	glutSwapBuffers(); // 双缓冲，减少闪烁
 }
 

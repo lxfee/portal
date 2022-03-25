@@ -23,7 +23,6 @@ Scene::Scene() {
 	Model* floor = new Model({Mesh(vertex, {0, 1, 2, 2, 3, 0}, {Texture::TextureFromFile("./models/container.png", "textureDiffuse")})});
     floor->scale = glm::vec3(1000);
 	floor->rotation[0] = 90;
-    floor->translation[1] = -5;
 
     vector<string> skyBoxPath = {
         "./models/skyBox/right.jpg",
@@ -38,9 +37,6 @@ Scene::Scene() {
     skyBox->scale = glm::vec3(500);
     
     PointLight* pointLight = new PointLight();
-    Camera* camera = new Camera();
-
-    cameras["camera"] = camera;
     pointLights.push_back(pointLight);
     dirLight = new DirLight();
 
@@ -54,16 +50,29 @@ Scene::Scene() {
     dirLight->diffuse = glm::vec3(0.5); // 漫反射
     dirLight->specular = glm::vec3(0.5); // 镜面反射
 
+
+    Camera* camera = new Camera();
+    cameras["camera"] = camera;
+
+    Camera* sCamera = new Camera();
+    sCamera->projMode = ORTHO;
+    sCamera->eye = glm::vec3(0,60, 0);
+    sCamera->scale = 8;
+    sCamera->dir = glm::vec3(0, -1, 0);
+    
+    cameras["sCamera"] = sCamera;
+
+
     // 加载模型文件
     Model* head = new Model("./models/robot/head.obj");
 	Model* nano = new Model("./models/namo/nanosuit.obj");
     Model* cube = new Model("./models/cube/cube.obj");
     cube->addTexture(Texture::TextureFromFile("./models/wall.jpg", "textureDiffuse"));
     
-    // objects["head"] = head;
-	// objects["nano"] = nano;
+    objects["head"] = head;
+	objects["nano"] = nano;
     objects["floor"] = floor;
     objects["skyBox"] = skyBox;
-    objects["cube"] = cube;
+    // objects["cube"] = cube;
 
-}
+}  

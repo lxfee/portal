@@ -28,7 +28,7 @@ using namespace std;
 //
 
 #define GL_SILENCE_DEPRECATION
-
+typedef enum{ORTHO, PERSPECTIVE} ProjectMode;
 
 // Define a helpful macro for handling offsets into buffer objects
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))

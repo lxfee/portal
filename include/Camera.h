@@ -22,10 +22,8 @@ public:
 	void transCamera(Shader* shader);
 
 	// 相机位置参数
-	float yaw;
-	float pitch;
 	glm::vec3 eye; // 相机位置
-	glm::vec3 dir;  // 相机朝向
+	glm::vec3 dir; // 方向
 	glm::vec3 up;  // 相机上方朝向
 
 	// 投影参数
@@ -42,5 +40,5 @@ public:
 
 
 	// 投影模式
-	enum{ORTHO, PERSPECTIVE} projMode;
+	ProjectMode projMode;
 };

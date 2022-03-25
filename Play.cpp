@@ -5,10 +5,7 @@ Play::Play(Scene* scene) : scene(scene) {
 }
 
 void Play::idle() {
-	extern float frameTime;
-	auto camera = scene->cameras["camera"];
-	auto light = scene->dirLight;
-	static enum{CAMERA, LIGHT} status = CAMERA;
+	static enum{CAMERA, LIGHT, DEBUG} status = CAMERA;
 
 	if(KEYBUFFER['1']) {
 		status = CAMERA;
@@ -16,10 +13,20 @@ void Play::idle() {
 	if(KEYBUFFER['2']) {
 		status = LIGHT;
 	}
+	if(KEYBUFFER['3']) {
+		status = DEBUG;
+	}
 	
 	switch(status) {
-		case CAMERA: camera->doMovement(KEYBUFFER); break;
-		case LIGHT: light->doMovement(KEYBUFFER); break;
+		case CAMERA: 
+			scene->cameras["camera"] ->doMovement(KEYBUFFER); 
+			break;
+		case LIGHT: 
+			scene->dirLight->doMovement(KEYBUFFER); 
+			break;
+		case DEBUG: 
+			scene->cameras["sCamera"]->doMovement(KEYBUFFER);
+			break; 
 	}
 }
 
