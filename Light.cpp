@@ -12,6 +12,17 @@ PointLight::PointLight() {
     constant = 1.0f;
     linear = 0.09f;
     quadratic = 0.032f;
+	ambient = glm::vec3(0.6);
+    diffuse = glm::vec3(0.8);
+    specular = glm::vec3(0.2);
+    position = glm::vec3(0);
+}
+
+DirLight::DirLight() {
+	ambient = glm::vec3(0.6);
+    diffuse = glm::vec3(0.8);
+    specular = glm::vec3(0.2);
+    direction = glm::vec3(0, -1, 0);
 }
 
 void PointLight::transLight(const string &name, Shader* shader) {
@@ -45,7 +56,7 @@ void PointLight::doMovement(unsigned char* KEYBUFFER) {
 
 void DirLight::doMovement(unsigned char* KEYBUFFER) {
 	extern float frameTime;
-	float cameraSpeed = 1.0f * (frameTime / 1000);
+	float cameraSpeed = 5.0f * (frameTime / 1000);
   	glm::vec3 translation(0);
 	if(KEYBUFFER[GLFW_KEY_W]) 
 	  	translation.x += cameraSpeed;
@@ -56,5 +67,6 @@ void DirLight::doMovement(unsigned char* KEYBUFFER) {
   	if(KEYBUFFER[GLFW_KEY_D])
 	  	translation.z -= cameraSpeed;
 	direction += translation;
+	direction = glm::normalize(direction);
 }
 

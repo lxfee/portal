@@ -32,10 +32,7 @@ void Play::idle() {
 }
 
 void Play::keyboard(unsigned char key, int x, int y, int action) {
-	if(action == GLFW_PRESS)
-    	KEYBUFFER[key] = true;
-	else if(action == GLFW_RELEASE)
-    	KEYBUFFER[key] = false;
+	
 }
 
 void Play::mouseMotion(float deltaX, float deltaY) {

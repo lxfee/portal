@@ -27,7 +27,9 @@ Scene::Scene() {
     Model* skyBox = new Model("./models/cube/cube.obj");
     skyBox->addTexture(Texture::BoxTextureFromFile(skyBoxPath, "cubeTexture"));
     skyBox->scale = glm::vec3(500);
-    
+
+
+
     PointLight* pointLight = new PointLight();
     pointLights.push_back(pointLight);
     dirLight = new DirLight();
@@ -57,7 +59,16 @@ Scene::Scene() {
     
     
     
-
+    vector<Vertex> vertex = {
+		{glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(100.0f, 100.0f)},
+		{glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(100.0f, 0.0f)},
+		{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 100.0f)},
+	};
+	Model* floor = new Model({Mesh(vertex, {0, 1, 2, 2, 3, 0}, {Texture::TextureFromFile("./models/floor.png", "textureDiffuse")})});
+    floor->scale = glm::vec3(1000);
+	floor->rotation[0] = 90;
+    floor->translation[1] = -2;
 
     // 加载模型文件
     Model* head = new Model("./models/robot/head.obj");
@@ -67,8 +78,6 @@ Scene::Scene() {
     
     objects["head"] = head;
 	objects["nano"] = nano;
-    // objects["floor"] = floor;
+    objects["floor"] = floor;
     objects["skyBox"] = skyBox;
-    // objects["cube"] = cube;
-
 }  

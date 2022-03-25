@@ -36,7 +36,7 @@ public:
     // 长宽度比例
 	float aspect = 1.777;
 	// 正交投影参数
-	float scale = 1;
+	float scale = 10;
 
 
 	// 投影模式

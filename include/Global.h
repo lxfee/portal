@@ -41,3 +41,4 @@ typedef enum{ORTHO, PERSPECTIVE} ProjectMode;
 #define GLFW_KEY_S 's'
 #define GLFW_KEY_A 'a'
 #define GLFW_KEY_D 'd'
+

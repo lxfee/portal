@@ -12,7 +12,7 @@ struct Material {
 
 uniform Material material;
 
+
 void main() {             
-    float depValue = texture(material.textureDiffuse[0], texCoords).r;
-    fColor = vec4(vec3(depValue), 1.0);
+    fColor = texture(material.textureDiffuse[0], texCoords);
 }

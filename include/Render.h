@@ -19,7 +19,6 @@ class FrameBuffer {
         bool CheckComplete();
     private:
         unsigned int fbo;
-        unsigned int rbo;
 };
 
 class Render {
@@ -47,7 +46,7 @@ class Render {
     private:
         Scene* scene;
         map<string, Shader*> shaders;
-        FrameBuffer fb; 
+        // FrameBuffer fb; 
         Texture shadowMap; // 临时
         void glClear(GLbitfield mask); // 使用裁剪和视口缩放，实现子窗口
         int width, height;
