@@ -24,7 +24,7 @@ glm::mat4 Camera::getProjectionMatrix() {
 
 void Camera::doMovement(unsigned char* KEYBUFFER) {
 	extern float frameTime;
-	float cameraSpeed = 20.0f * (frameTime / 1000);
+	float cameraSpeed = 5.0f * (frameTime / 1000);
   	glm::vec3 translation(0);
 	dir = normalize(dir);
 	glm::vec3 right = glm::normalize(glm::cross(up, dir));
@@ -68,9 +68,9 @@ void Camera::mouseMotion(float deltaX, float deltaY) {
 
 // 相机焦距改变
 void Camera::mouseWheel(int button, int dir, int x, int y) {
-	if(fov >= 1.0f && fov <= 45.0f) fov -= dir;
+	if(fov >= 1.0f && fov <= 170.0f) fov -= dir;
 	if(fov <= 1.0f) fov = 1.0f;
-	if(fov >= 45.0f) fov = 45.0f;
+	if(fov >= 170.0f) fov = 170.0f;
 }
 
 void Camera::transCamera(Shader* shader) {

@@ -68,16 +68,19 @@ Scene::Scene() {
 	Model* floor = new Model({Mesh(vertex, {0, 1, 2, 2, 3, 0}, {Texture::TextureFromFile("./models/floor.png", "textureDiffuse")})});
     floor->scale = glm::vec3(1000);
 	floor->rotation[0] = 90;
-    floor->translation[1] = -2;
+    // floor->translation[1] = -2;
+    
 
     // 加载模型文件
     Model* head = new Model("./models/robot/head.obj");
 	Model* nano = new Model("./models/namo/nanosuit.obj");
     Model* cube = new Model("./models/cube/cube.obj");
     cube->addTexture(Texture::TextureFromFile("./models/wall.jpg", "textureDiffuse"));
-    
+    head->translation[1] = 0.1;
+
+
     objects["head"] = head;
-	objects["nano"] = nano;
+	// objects["nano"] = nano;
     objects["floor"] = floor;
     objects["skyBox"] = skyBox;
 }  

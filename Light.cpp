@@ -10,17 +10,17 @@ void DirLight::transLight(const string &name, Shader* shader) {
 
 PointLight::PointLight() {
     constant = 1.0f;
-    linear = 0.09f;
-    quadratic = 0.032f;
-	ambient = glm::vec3(0.6);
-    diffuse = glm::vec3(0.8);
+    linear = 0.007f;
+    quadratic = 0.0002f;
+	ambient = glm::vec3(0.5);
+    diffuse = glm::vec3(0.6);
     specular = glm::vec3(0.2);
     position = glm::vec3(0);
 }
 
 DirLight::DirLight() {
-	ambient = glm::vec3(0.6);
-    diffuse = glm::vec3(0.8);
+	ambient = glm::vec3(0.5);
+    diffuse = glm::vec3(0.6);
     specular = glm::vec3(0.2);
     direction = glm::vec3(0, -1, 0);
 }

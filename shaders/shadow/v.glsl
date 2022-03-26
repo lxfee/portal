@@ -6,9 +6,7 @@ layout (location = 2) in vec2 vTexture;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 model;
-out vec2 texCoords;
 
 void main() {
     gl_Position = projection * view * model * vec4(vPosition, 1.0f);
-    texCoords = vTexture;
 }
