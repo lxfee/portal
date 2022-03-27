@@ -53,7 +53,7 @@ float ShadowCalculation(vec4 lightFpos, sampler2D depMap) {
     vec3 projCoords = lightFpos.xyz / lightFpos.w;
     projCoords = projCoords * 0.5 + 0.5;
     float currentDepth = projCoords.z;
-    float bias = 0.0005;
+    float bias = 0.00005;
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(depMap, 0);
     for(int x = -1; x <= 1; ++x) {
@@ -122,6 +122,7 @@ void main() {
     result += CalcPointLight(pointLight, fs_in.normal, fs_in.position, viewDir);
     result += CalcDirLight(dirLight, fs_in.normal, viewDir);
 
-    fColor = vec4(result, 1.0);
+    // fColor = vec4(result, 1.0);
+    fColor = texture(material.textureDiffuse[0], fs_in.texCoords);
 }
 

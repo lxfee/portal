@@ -11,6 +11,7 @@ uniform mat4 projection;
 uniform mat4 model;
 
 void main() {
+    mat4 nview = mat4(mat3(view)); // 天空盒不随视点变化
     TexCoords = vec3(model * vec4(vPosition, 1.0));
-    gl_Position = projection * view * vec4(TexCoords, 1.0);
+    gl_Position = projection * nview * vec4(TexCoords, 1.0);
 }

@@ -3,8 +3,8 @@
 #include "Camera.h"
 #include "Global.h"
 #include "Render.h"
-#include "Play.h"
 #include "Scene.h"
+#include "Steve.h"
 
 /*----------------------------------------------定义---------------------------------------------*/
 const int WIDTH = 1280;
@@ -20,37 +20,33 @@ static unsigned char KEYBUFFER[1024];
 
 Scene* scene;
 Model* pannel;
-Shader* pannelshader;
-Shader* shader;
-Shader* depthshader;
+Shader* pannelshader, *shader, *depthshader, *skyboxshader;
 FrameBuffer* fbo;
-Camera* curCamera;
 Camera* camera;
-Camera* dirDepCamera;
-Camera* pointDepCamera;
 DirLight* dirLight;
 PointLight* pointLight;
 Texture TDirDepth;
 Texture TPointDepth;
+Texture Skybox;
 int currentControl;
-const int w = 5000, h = 5000;
+Steve* him;
+
+const int w = 6000, h = 6000;
 
 void idle() {
 	glutPostRedisplay();
-	GLfloat currentFrameTime = glutGet(GLUT_ELAPSED_TIME);
+	float currentFrameTime = glutGet(GLUT_ELAPSED_TIME);
 	frameTime = currentFrameTime - lastFrameTime;
 	lastFrameTime= currentFrameTime;
 	cout << "\r        \r" << (int)(1000 / frameTime);
 	
-	switch(currentControl) {
-		case 0: curCamera = camera; break;
-		case 1: curCamera = pointDepCamera; break;
-		case 2: dirLight->doMovement(KEYBUFFER); break;
-	}
-
-	curCamera->doMovement(KEYBUFFER);
-	pointLight->position = pointDepCamera->eye;
-	dirDepCamera->dir = dirLight->direction;
+	// switch(currentControl) {
+	// 	case 0: camera->doMovement(KEYBUFFER); break;
+	// 	case 1: dirLight->doMovement(KEYBUFFER); break;
+	// 	case 2: pointLight->doMovement(KEYBUFFER); break;
+	// }
+	camera->doMovement(KEYBUFFER);
+	him->doMovement(KEYBUFFER);
 }
 
 void build() {
@@ -62,6 +58,15 @@ void build() {
 	glClearDepth(1); 			// 深度缓冲初始值
     glEnable(GL_DEPTH_TEST); 	// 开启深度测试
     glEnable(GL_STENCIL_TEST); 	// 开启模板测试
+	
+	vector<string> skyBoxPath = {
+        "./models/skybox/right.jpg",
+        "./models/skybox/left.jpg",
+	    "./models/skybox/top.jpg",
+	    "./models/skybox/bottom.jpg",
+        "./models/skybox/front.jpg",
+        "./models/skybox/back.jpg"
+    };
 
 	vector<Vertex> vertex = {
 		{glm::vec3( 0,  0, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 1.0f)},
@@ -69,84 +74,78 @@ void build() {
 		{glm::vec3(-1, -1, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
 		{glm::vec3(0,  -1, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 1.0f)},
 	};
-	TDirDepth = Texture::TextureForFramebufferDepth("depth", "textureDiffuse", w, h);
-	TPointDepth = Texture::TextureForFramebufferDepth("depth", "textureDiffuse", w, h);
-	// pannel = new Model({ Mesh(vertex, {0, 1, 2, 2, 3, 0}, {Texture::TextureFromFile("./models/floor.png", "textureDiffuse")}) });
+	TDirDepth = Texture::TextureForFramebufferDepth("dirDepMap", w, h);
+	TPointDepth = Texture::TextureForFramebufferDepth("pointDepMap", w, h);
+	Skybox = Texture::CubeTextureFromFile(skyBoxPath, "cubeTexture");
+	// pannel = new Model({ Mesh(vertex, {0, 1, 2, 2, 3, 0}, {Texture::TextureFromFile("./models/floor.png")}) });
 	pannel = new Model({ Mesh(vertex, {0, 1, 2, 2, 3, 0}, { TPointDepth }) });
 	
 	pannelshader = new Shader("./shaders/simple/v.glsl", "./shaders/simple/f.glsl");
 	shader = new Shader("./shaders/normal/v.glsl", "./shaders/normal/f.glsl");
 	depthshader = new Shader("./shaders/shadow/v.glsl", "./shaders/shadow/f.glsl");
-	camera = new Camera();
-	pointDepCamera = new Camera();
-	pointDepCamera->eye = glm::vec3(0, 20, 0);
-	pointDepCamera->dir = glm::vec3(0, -1, 0);
-	pointDepCamera->aspect = 1.0 * w / h;
-	pointDepCamera->fov = 90;
-	curCamera = pointDepCamera;
-	dirDepCamera = new Camera();
-	dirDepCamera->projMode = ORTHO;
-	dirDepCamera->eye = glm::vec3(0, 20, 0);
-	dirDepCamera->dir = glm::vec3(0, -1, 0);
+	skyboxshader = new Shader("./shaders/skybox/v.glsl", "./shaders/skybox/f.glsl");
 	dirLight = new DirLight();
 	pointLight = new PointLight();
+	him = new Steve();
+	camera = new Camera();
+	
 	fbo = new FrameBuffer();
 }
 
 
 void display() { 
-	fbo->attachDepth(TDirDepth);
-	fbo->active();
-	glViewport(0, 0, w, h);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	depthshader->use();
-	dirDepCamera->transCamera(depthshader);
-	dirDepCamera->scale = 50;
-	for(auto& obj : scene->objects) {
-		if(obj.first == "skyBox" || obj.first == "floor") continue;
-		obj.second->Draw(depthshader);
-	}
-	fbo->restore();
 
-	fbo->attachDepth(TPointDepth);
-	fbo->active();
-	glViewport(0, 0, w, h);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	depthshader->use();
-	pointDepCamera->transCamera(depthshader);
-	for(auto& obj : scene->objects) {
-		if(obj.first == "skyBox") continue;
-		obj.second->Draw(depthshader);
-	}
-	fbo->restore();
+
+
+	// fbo->attachDepth(TDirDepth);
+	// fbo->active();
+	// glViewport(0, 0, w, h);
+	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// depthshader->use();
+	// dirLight->lightCamera->transCamera(depthshader);
+	// for(auto& obj : scene->objects) {
+	// 	if(obj.first == "skybox" || obj.first == "floor") continue;
+	// 	obj.second->Draw(depthshader);
+	// }
+	// fbo->restore();
+
+	// fbo->attachDepth(TPointDepth);
+	// fbo->active();
+	// glViewport(0, 0, w, h);
+	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// depthshader->use();
+	// pointLight->lightCamera->transCamera(depthshader);
+	// for(auto& obj : scene->objects) {
+	// 	if(obj.first == "skybox") continue;
+	// 	obj.second->Draw(depthshader);
+	// }
+	// fbo->restore();
 
 	glViewport(0, 0, WIDTH, HEIGHT);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	skyboxshader->use();
+	camera->transCamera(skyboxshader);
+	Skybox.transTexture(shader);
+	scene->objects["skybox"]->Draw(skyboxshader);
+	
+	
 	shader->use();
-	shader->setMat4("dirLightViewMatrix",  dirDepCamera->getProjectionMatrix() * dirDepCamera->getViewMatrix());
-	shader->setMat4("pointLightViewMatrix",  pointDepCamera->getProjectionMatrix() * pointDepCamera->getViewMatrix());
+	shader->setMat4("dirLightViewMatrix",  dirLight->getLightViewMatrix());
+	shader->setMat4("pointLightViewMatrix",  pointLight->getLightViewMatrix());
 	camera->transCamera(shader);
-	dirLight->transLight("dirLight", shader);
-	pointLight->transLight("pointLight", shader);
-	
-	glActiveTexture(GL_TEXTURE0 + 8);
-    shader->setInt("dirDepMap", 8);
-    glBindTexture(GL_TEXTURE_2D, TDirDepth.id);
-    glActiveTexture(GL_TEXTURE0);
-	
-	glActiveTexture(GL_TEXTURE0 + 9);
-    shader->setInt("pointDepMap", 9);
-    glBindTexture(GL_TEXTURE_2D, TPointDepth.id);
-    glActiveTexture(GL_TEXTURE0);
-
+	dirLight->transLight("", shader);
+	pointLight->transLight("", shader);
+	TDirDepth.transTexture(shader, 8);
+	TPointDepth.transTexture(shader, 9);
 	for(auto& obj : scene->objects) {
-		if(obj.first == "skyBox") continue;
+		if(obj.first == "skybox") continue;
 		obj.second->Draw(shader);
 	}
+	him->Draw(shader);
 
-	glClear(GL_DEPTH_BUFFER_BIT);
-	pannelshader->use();
-	pannel->Draw(pannelshader);
+	// glClear(GL_DEPTH_BUFFER_BIT);
+	// pannelshader->use();
+	// pannel->Draw(pannelshader);
 
 	glutSwapBuffers(); // 双缓冲，减少闪烁
 }
@@ -170,7 +169,7 @@ void keyboardUp(unsigned char key, int x, int y) {
 }
 
 void mouseWheel(int button, int dir, int x, int y) {
-	curCamera->mouseWheel(button, dir, x, y);
+	camera->mouseWheel(button, dir, x, y);
 }
 
 
@@ -178,7 +177,7 @@ void mouseMotion(int x, int y) {
 	static int lastX = MIDWIDTH, lastY = MIDHEIGHT;
 	float deltaX = x - lastX;
 	float deltaY = lastY - y; // 注意这里是相反的，因为y坐标的范围是从下往上的
-	curCamera->mouseMotion(deltaX, deltaY);
+	camera->mouseMotion(deltaX, deltaY);
 	glutWarpPointer(MIDWIDTH, MIDHEIGHT);
 }
 

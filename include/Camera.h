@@ -2,43 +2,39 @@
 #include "Global.h"
 #include "Shader.h"
 
+typedef enum{ORTHO, PERSPECTIVE} ProjectMode;
 
 class Camera {
 public:
-	Camera();
+	Camera(ProjectMode projectMode = PERSPECTIVE);
 	~Camera();
 
 	glm::mat4 getViewMatrix();
 	glm::mat4 getProjectionMatrix();
 
-	// 处理相机的鼠标操作
-	void mouseMotion(float deltaX, float deltaY);
-	void mouseWheel(int button, int dir, int x, int y);
+	void mouseMotion(float deltaX, float deltaY);		// 相机鼠标事件
+	void mouseWheel(int button, int dir, int x, int y); // 相机移动函数
+	glm::vec3 doMovement(unsigned char* KEYBUFFER); 	// 相机移动函数
+	void transCamera(Shader* shader); 					// 往着色器传递相机
 
-	// 相机移动函数
-	void doMovement(unsigned char* KEYBUFFER);
-
-	// 往着色器传递相机
-	void transCamera(Shader* shader);
-
-	// 相机位置参数
+	/*********** 相机位置参数 **********/
 	glm::vec3 eye; // 相机位置
 	glm::vec3 dir; // 方向
 	glm::vec3 up;  // 相机上方朝向
+	float maxPitch = 89.0;
+	float maxYaw = 180.0;
 
-	// 投影参数
+
+	/*********** 透视投影参数 **********/
 	#undef near
 	#undef far
-	float near = 0.1;
-	float far = 1000.0;
-	// 透视投影参数，单位：度
-	float fov = 45.0;
-    // 长宽度比例
-	float aspect = 1.777;
-	// 正交投影参数
+	float near = 0.1, far = 1000.0;	// 近平面，远平面
+	float fov = 45.0; 				// 透视投影参数，单位：度
+	float aspect = 1.777; 			// 长宽度比例，16:9
+
+	/*********** 正交投影参数 **********/
 	float scale = 10;
 
-
-	// 投影模式
-	ProjectMode projMode;
+private:
+	ProjectMode projMode; // 投影模式
 };

@@ -13,32 +13,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-
 using namespace std;
 
-
-//----------------------------------------------------------------------------
-//
-// --- Include OpenGL header files and helpers ---
-//
-//   The location of these files vary by operating system.  We've included
-//     copies of open-soruce project headers in the "GL" directory local
-//     this this "include" directory.
-//
-
+// 使用下面宏定义，支持旧的glut函数，提高兼容性
 #define GL_SILENCE_DEPRECATION
-typedef enum{ORTHO, PERSPECTIVE} ProjectMode;
 
-// Define a helpful macro for handling offsets into buffer objects
-#define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
-#define Print(x)  do { std::cerr << #x " = " << (x) << std::endl; } while(0)
-// Keyboard action
-#define GLFW_PRESS 0
-#define GLFW_RELEASE 1
-// Key val
-#define GLFW_KEY_W 'w'
-#define GLFW_KEY_S 's'
-#define GLFW_KEY_A 'a'
-#define GLFW_KEY_D 'd'
+#define KEY_PRESS 0
+#define KEY_RELEASE 1
+#define KEY_W 'w'
+#define KEY_S 's'
+#define KEY_A 'a'
+#define KEY_D 'd'
 

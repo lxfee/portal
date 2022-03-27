@@ -14,11 +14,13 @@ struct Vertex {
 struct Texture {
     unsigned int id;
     string type;
-    string path;  // 我们储存纹理的路径用于与其它纹理进行比较
-    static Texture TextureFromFile(string path, string type);
-    static Texture BoxTextureFromFile(vector<string> path, string type);
-    static Texture TextureForFramebufferColor(string name, string type, int width, int height);
-    static Texture TextureForFramebufferDepth(string name, string type, int width, int height);
+    string name;  // 我们储存纹理的路径用于与其它纹理进行比较
+    void transTexture(Shader* shader, int channel = 0) const;
+
+    static Texture TextureFromFile(string path, string name, string type = "textureDiffuse");
+    static Texture CubeTextureFromFile(vector<string> path, string name, string type = "cubeTexture");
+    static Texture TextureForFramebufferColor(string name, int width, int height, string type = "textureDiffuse");
+    static Texture TextureForFramebufferDepth(string name, int width, int height, string type = "textureDiffuse");
 };
 
 
@@ -30,7 +32,7 @@ class Mesh {
         vector<Texture> textures;
         /*  函数  */
         Mesh(const vector<Vertex>& vertices, const vector<unsigned int>& indices, const vector<Texture>& textures);
-        void Draw(Shader* shader, int amount = 1);
+        void Draw(Shader* shader, int amount = 1) const ;
         void setInstanceMatrix(int locate);
     private:
         /*  渲染数据  */
@@ -42,12 +44,13 @@ class Mesh {
 class Model {
     public:
         /*  函数   */
-        Model(char *path) : translation(0), rotation(0), scale(1), buffer(0) {
+        Model(const char *path) : translation(0), rotation(0), scale(1), buffer(0) {
             loadModel(path);
         }
         Model(vector<Mesh> meshes) : translation(0), rotation(0), scale(1), buffer(0) {
             this->meshes = meshes;
         }
+        void Draw(Shader* shader, glm::mat4 model, int amount = 1);  // 注意，如果设置了变换矩阵，函数会先应用模型自身的变换，再应用变换矩阵 
         void Draw(Shader* shader, int amount = 1);   
         void addTexture(Texture tex);
         void setInstanceMatrix(int locate, int amount, glm::mat4 InstanceMatrix[]);

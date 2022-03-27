@@ -39,24 +39,21 @@ void Mesh::setupMesh() {
     glBindVertexArray(0);
 }  
 
-void Mesh::Draw(Shader* shader, int amount) {
+void Mesh::Draw(Shader* shader, int amount) const {
     unsigned int diffuseNr = 0;
     unsigned int specularNr = 0;
     for(unsigned int i = 0; i < textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i); // 在绑定之前激活相应的纹理单元
         string number;
-        string name = textures[i].type;
-        if(name == "textureDiffuse") {
+        string tpye = textures[i].type;
+        if(tpye == "textureDiffuse") {
             number = std::to_string(diffuseNr++);
-            shader->setInt(("material." + name + "[" + number + "]").c_str(), i);
+            shader->setInt(("material." + tpye + "[" + number + "]").c_str(), i);
             glBindTexture(GL_TEXTURE_2D, textures[i].id);
-        } else if(name == "textureSpecular") {
+        } else if(tpye == "textureSpecular") {
             number = std::to_string(specularNr++);
-            shader->setInt(("material." + name + "[" + number + "]").c_str(), i);
+            shader->setInt(("material." + tpye + "[" + number + "]").c_str(), i);
             glBindTexture(GL_TEXTURE_2D, textures[i].id);
-        } else if(name == "cubeTexture") {
-            shader->setInt(name.c_str(), i);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, textures[i].id);
         }
     }
     glActiveTexture(GL_TEXTURE0);
@@ -74,11 +71,15 @@ void Mesh::Draw(Shader* shader, int amount) {
     glBindVertexArray(0);
 }
 
-void Model::Draw(Shader* shader, int amount) {
-    shader->setMat4("model", getModelMatrix()); // 应用变换。
+void Model::Draw(Shader* shader, glm::mat4 model, int amount) {
+    shader->setMat4("model", model * getModelMatrix()); // 应用变换。
     for(unsigned int i = 0; i < meshes.size(); i++) {
         meshes[i].Draw(shader, amount);
     }
+}
+
+void Model::Draw(Shader* shader, int amount) {
+    Draw(shader, glm::mat4(1.0), amount);
 }
 
 void Model::loadModel(string path) {
@@ -171,14 +172,14 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type,
         mat->GetTexture(type, i, &str);
         bool skip = false;
         for(unsigned int j = 0; j < textures_loaded.size(); j++) {
-            if(std::strcmp(textures_loaded[j].path.c_str(), str.C_Str()) == 0) {
+            if(std::strcmp(textures_loaded[j].name.c_str(), str.C_Str()) == 0) {
                 textures.push_back(textures_loaded[j]);
                 skip = true; 
                 break;
             }
         }
         if(!skip) {   // 如果纹理还没有被加载，则加载它
-            Texture texture = Texture::TextureFromFile(directory + "/" + str.C_Str(), typeName);
+            Texture texture = Texture::TextureFromFile(directory + "/" + str.C_Str(), str.C_Str(), typeName);
             textures.push_back(texture);
             textures_loaded.push_back(texture); // 添加到已加载的纹理中
         }
@@ -215,7 +216,7 @@ void Model::setInstanceMatrix(int locate, int amount, glm::mat4 InstanceMatrix[]
 
 void Model::addTexture(Texture tex) {
     for(unsigned int j = 0; j < textures_loaded.size(); j++) {
-        if(std::strcmp(textures_loaded[j].path.c_str(), tex.path.c_str()) == 0) {
+        if(std::strcmp(textures_loaded[j].name.c_str(), tex.name.c_str()) == 0) {
             return ;
         }
     }
@@ -239,7 +240,7 @@ void Mesh::setInstanceMatrix(int locate) {
 }
 
 
-Texture Texture::TextureFromFile(string path, string type) {
+Texture Texture::TextureFromFile(string path, string name, string type) {
     unsigned int id;
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
@@ -270,11 +271,11 @@ Texture Texture::TextureFromFile(string path, string type) {
     Texture texture;
     texture.id = id;
     texture.type = type;
-    texture.path = path;
+    texture.name = path;
     return texture;
 }
 
-Texture Texture::TextureForFramebufferColor(string name, string type, int width, int height) {
+Texture Texture::TextureForFramebufferColor(string name, int width, int height, string type) {
     unsigned int id;
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
@@ -290,11 +291,11 @@ Texture Texture::TextureForFramebufferColor(string name, string type, int width,
     Texture texture;
     texture.id = id;
     texture.type = type;
-    texture.path = name;
+    texture.name = name;
     return texture;
 }
 
-Texture Texture::TextureForFramebufferDepth(string name, string type, int width, int height) {
+Texture Texture::TextureForFramebufferDepth(string name, int width, int height, string type) {
     unsigned int id;
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
@@ -312,13 +313,13 @@ Texture Texture::TextureForFramebufferDepth(string name, string type, int width,
     Texture texture;
     texture.id = id;
     texture.type = type;
-    texture.path = name;
+    texture.name = name;
     return texture;
 }
 
 
 
-Texture Texture::BoxTextureFromFile(vector<string> path, string type) {
+Texture Texture::CubeTextureFromFile(vector<string> path, string name, string type) {
     unsigned int id;
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, id);
@@ -349,6 +350,14 @@ Texture Texture::BoxTextureFromFile(vector<string> path, string type) {
     Texture texture;
     texture.id = id;
     texture.type = type;
-    texture.path = path[0];
+    texture.name = name;
     return texture;
+}
+
+void Texture::transTexture(Shader* shader, int channel) const {
+    glActiveTexture(GL_TEXTURE0 + channel);
+    shader->setInt(name.c_str(), channel);
+    if(type == "cubeTexture") glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+    else glBindTexture(GL_TEXTURE_2D, id);
+    glActiveTexture(GL_TEXTURE0);
 }

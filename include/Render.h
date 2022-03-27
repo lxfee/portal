@@ -12,8 +12,8 @@ class FrameBuffer {
     public:
         FrameBuffer();
         ~FrameBuffer();
-        void attachColor(Texture tex);
-        void attachDepth(Texture tex);
+        void attachColor(Texture tex, int channel = 0);
+        void attachDepth(Texture tex, int channel = 0);
         void active();
         static void restore();
         bool CheckComplete();
