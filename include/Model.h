@@ -1,6 +1,7 @@
 #pragma once
 #include "Global.h"
 #include "Shader.h"
+#include "Texture.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -10,19 +11,6 @@ struct Vertex {
     glm::vec3 Normal;
     glm::vec2 TexCoords;
 };
-
-struct Texture {
-    unsigned int id;
-    string type;
-    string name;  // 我们储存纹理的路径用于与其它纹理进行比较
-    void transTexture(Shader* shader, int channel = 0) const;
-
-    static Texture TextureFromFile(string path, string name, string type = "textureDiffuse");
-    static Texture CubeTextureFromFile(vector<string> path, string name, string type = "cubeTexture");
-    static Texture TextureForFramebufferColor(string name, int width, int height, string type = "textureDiffuse");
-    static Texture TextureForFramebufferDepth(string name, int width, int height, string type = "textureDiffuse");
-};
-
 
 class Mesh {
     public:
@@ -68,8 +56,7 @@ class Model {
         void loadModel(string path);
         void processNode(aiNode *node, const aiScene *scene);
         Mesh processMesh(aiMesh *mesh, const aiScene *scene);
-        vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, 
-                                             string typeName); 
+        vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName); 
 };
 
 

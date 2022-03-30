@@ -12,17 +12,18 @@ public:
 	glm::mat4 getViewMatrix();
 	glm::mat4 getProjectionMatrix();
 
-	void mouseMotion(float deltaX, float deltaY);		// 相机鼠标事件
-	void mouseWheel(int button, int dir, int x, int y); // 相机移动函数
-	glm::vec3 doMovement(unsigned char* KEYBUFFER); 	// 相机移动函数
-	void transCamera(Shader* shader); 					// 往着色器传递相机
+	void mouseMotion(float mouseDeltaX, float mouseDeltaY);	// 相机鼠标事件
+	void mouseWheel(int button, int dir, int x, int y); 	// 相机移动函数
+	glm::vec3 doMovement(); 	// 相机移动函数
+	void transCamera(Shader* shader); 						// 往着色器传递相机
+	void getPitchYaw(float &pitch, float &yaw);
+	void setPitchYaw(float pitch, float yaw);
 
 	/*********** 相机位置参数 **********/
 	glm::vec3 eye; // 相机位置
 	glm::vec3 dir; // 方向
 	glm::vec3 up;  // 相机上方朝向
 	float maxPitch = 89.0;
-	float maxYaw = 180.0;
 
 
 	/*********** 透视投影参数 **********/

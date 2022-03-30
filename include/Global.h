@@ -20,8 +20,3 @@ using namespace std;
 
 #define KEY_PRESS 0
 #define KEY_RELEASE 1
-#define KEY_W 'w'
-#define KEY_S 's'
-#define KEY_A 'a'
-#define KEY_D 'd'
-

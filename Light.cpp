@@ -70,15 +70,16 @@ void PointLight::transLight(const string &name, Shader* shader) {
     shader->setFloat("pointLight" + name + ".quadratic",quadratic);
 }
 
-glm::vec3 PointLight::doMovement(unsigned char* KEYBUFFER) {
+glm::vec3 PointLight::doMovement() {
+	extern unsigned char KEYBUFFER[1024];
 	extern float frameTime;
 	float cameraSpeed = 5.0f * (frameTime / 1000);
   	glm::vec3 translation(0);
 	
-	if(KEYBUFFER[KEY_W]) translation.x += cameraSpeed;
-  	if(KEYBUFFER[KEY_S]) translation.x -= cameraSpeed;
-  	if(KEYBUFFER[KEY_A]) translation.y += cameraSpeed;
-  	if(KEYBUFFER[KEY_D]) translation.y -= cameraSpeed;
+	if(KEYBUFFER['w']) translation.x += cameraSpeed;
+  	if(KEYBUFFER['s']) translation.x -= cameraSpeed;
+  	if(KEYBUFFER['a']) translation.y += cameraSpeed;
+  	if(KEYBUFFER['d']) translation.y -= cameraSpeed;
 	if(KEYBUFFER[' ']) translation.z += cameraSpeed;
 	if(KEYBUFFER['q']) translation.z -= cameraSpeed;
 	
@@ -87,14 +88,15 @@ glm::vec3 PointLight::doMovement(unsigned char* KEYBUFFER) {
 	return translation;
 }
 
-glm::vec3 DirLight::doMovement(unsigned char* KEYBUFFER) {
+glm::vec3 DirLight::doMovement() {
+	extern unsigned char KEYBUFFER[1024];
 	extern float frameTime;
 	float cameraSpeed = 5.0f * (frameTime / 1000);
   	glm::vec3 translation(0);
-	if(KEYBUFFER[KEY_W]) translation.x += cameraSpeed;
-  	if(KEYBUFFER[KEY_S]) translation.x -= cameraSpeed;
-  	if(KEYBUFFER[KEY_A]) translation.z += cameraSpeed;
-  	if(KEYBUFFER[KEY_D]) translation.z -= cameraSpeed;
+	if(KEYBUFFER['w']) translation.z += cameraSpeed;
+  	if(KEYBUFFER['s']) translation.z -= cameraSpeed;
+  	if(KEYBUFFER['a']) translation.x += cameraSpeed;
+  	if(KEYBUFFER['d']) translation.x -= cameraSpeed;
 	direction += translation;
 	direction = glm::normalize(direction);
 	lightCamera->dir = direction;

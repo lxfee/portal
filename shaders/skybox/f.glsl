@@ -6,5 +6,5 @@ in vec3 TexCoords;
 uniform samplerCube cubeTexture;
 
 void main() {    
-    FragColor = texture(cubeTexture, TexCoords);
+    FragColor = vec4(texture(cubeTexture, TexCoords).rgb, 1.0);
 }

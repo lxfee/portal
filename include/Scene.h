@@ -3,13 +3,31 @@
 #include "Model.h"
 #include "Camera.h"
 #include "Light.h"
+#include "Steve.h"
 
-class    Scene {
+class Scene {
     public:
         ~Scene();
         Scene();
+        /*--------------------------光源--------------------------*/
         DirLight* dirLight;
         vector<PointLight*> pointLights;
-        map<string, Camera*> cameras;
-        map<string, Model*> objects;
+
+        /*--------------------------相机-------------------------*/
+        Camera* masterCamera;
+
+        /*--------------------------模型-------------------------*/
+        vector<Model*> objects; // 普通物体
+        vector<Model*> glasses; // 玻璃材质物体
+        Model* floor;           // 地板
+        Steve* steve;           // 玩家人物
+
+        Model* cube;            // 方形物体
+        Model* debugPannel;     // 调试面板
+        Model* skybox;          // 天空盒
+
+        /*--------------------------贴图--------------------------*/
+        Texture TDirDepth;  // 平行光阴影
+        Texture TS, TC;     // 用于帧缓冲
+        Texture Tskybox;    // 立方体贴图，用于天空盒
 };

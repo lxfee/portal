@@ -5,7 +5,6 @@ in VS_OUT {
     vec3 normal;
     vec3 position;
     vec4 dirLightFpos;      // 平行光视角
-    vec4 pointLightFpos;    // 点光源视角
 } fs_in;
 
 out vec4 fColor;
@@ -39,13 +38,13 @@ struct DirLight {
     vec3 specular;
 };  
 
-
 uniform Material material;
 uniform DirLight dirLight;
-uniform PointLight pointLight;
+uniform int pointLightNumber;
+uniform PointLight pointLight[5];
 uniform vec3 eyePos;
 uniform sampler2D dirDepMap;
-uniform sampler2D pointDepMap;
+
 
 
 float ShadowCalculation(vec4 lightFpos, sampler2D depMap) {
@@ -58,7 +57,7 @@ float ShadowCalculation(vec4 lightFpos, sampler2D depMap) {
     vec2 texelSize = 1.0 / textureSize(depMap, 0);
     for(int x = -1; x <= 1; ++x) {
         for(int y = -1; y <= 1; ++y) {
-            float pcfDepth = texture(depMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+            float pcfDepth = texture(depMap, projCoords.xy + vec2(x, y) * texelSize).x; 
             shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
         }    
     }
@@ -89,8 +88,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     diffuse  *= attenuation;
     specular *= attenuation;
 
-    float shadow = ShadowCalculation(fs_in.pointLightFpos, pointDepMap);
-    return (ambient + (1.0 - shadow) * (diffuse + specular));
+    return (/* ambient + */ specular /* + diffuse */ );
 }
 
 
@@ -119,10 +117,12 @@ void main() {
     vec3 viewDir = normalize(eyePos - fs_in.position);
     vec3 result = vec3(0);
     
-    result += CalcPointLight(pointLight, fs_in.normal, fs_in.position, viewDir);
+    for(int i = 0; i < pointLightNumber; i++) {
+        result += CalcPointLight(pointLight[i], fs_in.normal, fs_in.position, viewDir);
+    }
+    
     result += CalcDirLight(dirLight, fs_in.normal, viewDir);
 
-    // fColor = vec4(result, 1.0);
-    fColor = texture(material.textureDiffuse[0], fs_in.texCoords);
+    fColor = vec4(result, 1.0);
 }
 
