@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Light.h"
 #include "Steve.h"
+#include "Portal.h"
 
 class Scene {
     public:
@@ -26,7 +27,7 @@ class Scene {
         Model* cube;            // 方形物体
         Model* debugPannel;     // 调试面板
         Model* skybox;          // 天空盒
-        Model *doorR, *doorB;   // 传送门
+        Portal* portal;
         
         /*--------------------------贴图--------------------------*/
         Texture TDirDepth;  // 平行光阴影

@@ -21,7 +21,7 @@ void Render::sceneRender() {
 
 	
 	glViewport(0, 0, WIDTH, HEIGHT);
-	glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	skyboxShader->use();
 	scene->Tskybox.transTexture(skyboxShader);
@@ -51,7 +51,6 @@ void Render::renderGlass() {
 	scene->TC.transTexture(glassShader, 10);
 	scene->masterCamera->transCamera(glassShader);
 	for(auto& glass : scene->glasses) {
-		// glass->translation.z = 5 * sin(glutGet(GLUT_ELAPSED_TIME) / 300.0);
         glass->Draw(glassShader);
     }
 }
@@ -74,6 +73,7 @@ void Render::debugRender() {
 	scene->TC.transTexture(debugShader, 10);
 	scene->debugPannel->Draw(debugShader);
 }
+
 
 void Render::renderLine(glm::vec3 p1, glm::vec3 p2, glm::mat4 model, int lineWide, glm::vec3 color) {
     basicShader->use();
@@ -117,71 +117,51 @@ Render::Render(Scene* scene) : scene(scene) {
 	depthFbo = new FrameBuffer();
 }
 
-void Render::renderdoorB() {
-	auto doorB = scene->doorB;
-	glm::vec3 p1 = glm::vec3(0);
-	glm::vec3 p2 = glm::vec3(0, 0, -1);
-	renderLine(p1, p2, doorB->getModelMatrix(), 4, glm::vec3(1.0));
+void Render::renderdoor1() {
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	basicShader->use();
-	basicShader->setVec3("color", glm::vec3(0, 0, 1.0));
 	scene->masterCamera->transCamera(basicShader);
-	doorB->Draw(basicShader);
+	basicShader->setVec3("color", glm::vec3(0, 0, 0.8));
+	scene->portal->door1->Draw(basicShader);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 }
 
-void Render::renderdoorR() {
-	auto doorR = scene->doorR;
-	glm::vec3 p1 = glm::vec3(0);
-	glm::vec3 p2 = glm::vec3(0, 0, -1);
-	// renderLine(p1, p2, doorR->getModelMatrix(), 4, glm::vec3(1.0));
+void Render::renderdoor2() {
 	basicShader->use();
 	scene->masterCamera->transCamera(basicShader);
-	basicShader->setVec3("color", glm::vec3(1.0, 0, 0));
-	doorR->Draw(basicShader);
+	basicShader->setVec3("color", glm::vec3(0.8, 0, 0));
+	scene->portal->door2->Draw(basicShader);
 }
 
 void Render::masterRender() {
-	auto doorR = scene->doorR;
-	auto doorB = scene->doorB;
-	auto model = doorR->getModelMatrix() * glm::rotate(glm::mat4(1.0), glm::radians(180.0f), glm::vec3(0, 1, 0)) * glm::inverse(doorB->getModelMatrix());
-
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+	// // 渲染普通场景到帧缓冲中
+	// glassFbo->active();
+	// glassFbo->attachColor(scene->TC);
+	// glassFbo->attachDepthStencil(scene->TS);
+	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	// sceneRender();
-	// basicShader->use();
-	// auto cube1 = scene->cube;
-	// cube1->scale = glm::vec3(0.1);
-	// cube1->translation = scene->masterCamera->eye;
-	// basicShader->setVec3("color", glm::vec3(0, 0.5, 0.5));
-	// scene->masterCamera->transCamera(basicShader);
-	// cube1->Draw(basicShader, model);
-	// renderLine(glm::vec3(0), 10.0f * scene->masterCamera->dir, model * cube1->getModelMatrix(), 5, glm::vec3(1.0));
+	// glassFbo->restore();
 
-	
-	
+	// 渲染场景以及玻璃
+	// sceneRender();
 	// renderGlass();
 
 	glStencilMask(0xFF); // 启用模板缓冲写入
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_STENCIL_BUFFER_BIT);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	glStencilFunc(GL_ALWAYS, 1, 0xFF); // 所有的片段都应该更新模板缓冲
-	renderdoorR();
-
-
+	renderdoor1();
 	glStencilFunc(GL_EQUAL, 1, 0xFF);
 	glStencilMask(0x00); // 禁用模板缓冲写入
-	auto p1 = scene->masterCamera->eye;
-	auto p2 = scene->masterCamera->eye + scene->masterCamera->dir;
-	p1 = glm::vec3(model * glm::vec4(p1, 1.0));
-	p2 = glm::vec3(model * glm::vec4(p2, 1.0));
-	auto dir = glm::normalize(p2 - p1);
-	scene->doorCamera->dir = dir;
-	scene->doorCamera->eye = p1;
+	scene->portal->updateDoor1Camera(scene->masterCamera, scene->doorCamera);
 	swap(scene->doorCamera, scene->masterCamera);
-	*scene->masterCamera->pannel = getPannel(glm::vec3(0), glm::vec3(0, 0, -1), doorB->getModelMatrix());
 	sceneRender();
 	swap(scene->doorCamera, scene->masterCamera);
 	
 	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 	sceneRender();
-	
 
 	// debugRender();
 }

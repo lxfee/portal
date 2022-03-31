@@ -14,8 +14,8 @@ public:
     void renderLightCube();
     void renderLine(glm::vec3 p1, glm::vec3 p2,glm::mat4 model = glm::mat4(1.0), int lineWide = 1, glm::vec3 color = glm::vec3(1.0, 0, 0));
     void debugRender();
-    void renderdoorB();
-    void renderdoorR();
+    void renderdoor1();
+    void renderdoor2();
 
     Scene* scene;
 
