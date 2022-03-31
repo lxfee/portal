@@ -24,7 +24,7 @@ glm::mat4 Camera::getProjectionMatrix() {
 glm::vec3 Camera::doMovement() {
 	extern unsigned char KEYBUFFER[1024];
 	extern float frameTime;
-	float cameraSpeed = 8.0f * (frameTime / 1000);
+	float cameraSpeed = 5.0f * (frameTime / 1000);
   	glm::vec3 translation(0);
 	dir = normalize(dir);
 	glm::vec3 right = glm::normalize(glm::cross(up, dir));

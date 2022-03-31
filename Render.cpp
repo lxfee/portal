@@ -16,6 +16,7 @@ void Render::sceneRender(const FrameBuffer* fbo) {
 		obj->Draw(depthShader);
 	}
 	scene->steve->Draw(depthShader);
+
 	depthFbo->restore(fbo);
 
 	
@@ -50,6 +51,7 @@ void Render::renderGlass() {
 	scene->TC.transTexture(glassShader, 10);
 	scene->masterCamera->transCamera(glassShader);
 	for(auto& glass : scene->glasses) {
+		// glass->translation.z = 5 * sin(glutGet(GLUT_ELAPSED_TIME) / 300.0);
         glass->Draw(glassShader);
     }
 }
@@ -60,7 +62,7 @@ void Render::renderLightCube() {
 	scene->masterCamera->transCamera(basicShader);
 	cube->scale = glm::vec3(0.2);
 	for(auto& pointLight : scene->pointLights) {
-		basicShader->setVec3("color", pointLight->ambient);
+		basicShader->setVec3("color", glm::vec3(1.0, 1.0, 1.0));
 		cube->translation = pointLight->getPosition();
 		cube->Draw(basicShader);
 	}
@@ -73,9 +75,10 @@ void Render::debugRender() {
 	scene->debugPannel->Draw(debugShader);
 }
 
-void Render::renderLine(glm::vec3 p1, glm::vec3 p2, int lineWide) {
+void Render::renderLine(glm::vec3 p1, glm::vec3 p2, glm::mat4 model, int lineWide, glm::vec3 color) {
     basicShader->use();
-    basicShader->setVec3("color", glm::vec3(1, 0, 0));
+    basicShader->setVec3("color", color);
+	basicShader->setMat4("model", model);
 
     glLineWidth(lineWide);				// 设置线宽
 	static bool isFirst = true;
@@ -113,16 +116,71 @@ Render::Render(Scene* scene) : scene(scene) {
 	depthFbo = new FrameBuffer();
 }
 
+void Render::renderdoorB() {
+	auto doorB = scene->doorB;
+	doorB->rotation = glm::vec3(0, 0, 0);
+	doorB->translation = glm::vec3(5, 5, 0);
+	glm::vec3 p1 = glm::vec3(0);
+	glm::vec3 p2 = glm::vec3(0, 0, -1);
+	renderLine(p1, p2, doorB->getModelMatrix(), 4, glm::vec3(1.0));
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+	basicShader->use();
+	basicShader->setVec3("color", glm::vec3(0, 0, 1.0));
+	doorB->Draw(basicShader);
+}
+void Render::renderdoorR() {
+	auto doorR = scene->doorR;
+	doorR->rotation = glm::vec3(0, 0, 0);
+	doorR->translation = glm::vec3(0, 5, 0);
+	glm::vec3 p1 = glm::vec3(0);
+	glm::vec3 p2 = glm::vec3(0, 0, -1);
+	renderLine(p1, p2, doorR->getModelMatrix(), 4, glm::vec3(1.0));
+
+	basicShader->use();
+	scene->masterCamera->transCamera(basicShader);
+	basicShader->setVec3("color", glm::vec3(1.0, 0, 0));
+	doorR->Draw(basicShader);
+}
+
 void Render::masterRender() {
-    glassFbo->active();
+	sceneRender();
+	renderdoorB();
+	renderdoorR();
+
+	auto doorR = scene->doorR;
+	auto doorB = scene->doorB;
+	auto model = doorR->getModelMatrix() * glm::rotate(glm::mat4(1.0), glm::radians(180.0f), glm::vec3(0, 1, 0)) * glm::inverse(doorB->getModelMatrix());
+
+	basicShader->use();
+	auto cube1 = scene->cube;
+	cube1->scale = glm::vec3(0.1);
+	cube1->translation = scene->masterCamera->eye;
+	basicShader->setVec3("color", glm::vec3(0, 0.5, 0.5));
+	scene->masterCamera->transCamera(basicShader);
+	cube1->Draw(basicShader, model);
+	renderLine(glm::vec3(0), 10.0f * scene->masterCamera->dir, model * cube1->getModelMatrix(), 5, glm::vec3(1.0));
+
+	auto p1 = scene->masterCamera->eye;
+	auto p2 = scene->masterCamera->eye + scene->masterCamera->dir;
+	p1 = glm::vec3(model * glm::vec4(p1, 1.0));
+	p2 = glm::vec3(model * glm::vec4(p2, 1.0));
+	auto dir = glm::normalize(p2 - p1);
+	scene->doorCamera->dir = dir;
+	scene->doorCamera->eye = p1;
+	
+	
+
+	// renderGlass();
+	swap(scene->doorCamera, scene->masterCamera);
+	glassFbo->active();
 	glassFbo->attachColor(scene->TC);
 	glassFbo->attachDepth(scene->TS);
 	sceneRender(glassFbo);
+	renderdoorB();
+	renderdoorR();
 	glassFbo->restore();
+	swap(scene->doorCamera, scene->masterCamera);
 
-
-	sceneRender();
-	renderGlass();
-
-	// debugRender();
+	debugRender();
 }

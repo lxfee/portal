@@ -15,6 +15,7 @@ class Scene {
 
         /*--------------------------相机-------------------------*/
         Camera* masterCamera;
+        Camera* doorCamera;
 
         /*--------------------------模型-------------------------*/
         vector<Model*> objects; // 普通物体
@@ -25,7 +26,8 @@ class Scene {
         Model* cube;            // 方形物体
         Model* debugPannel;     // 调试面板
         Model* skybox;          // 天空盒
-
+        Model *doorR, *doorB;   // 传送门
+        
         /*--------------------------贴图--------------------------*/
         Texture TDirDepth;  // 平行光阴影
         Texture TS, TC;     // 用于帧缓冲

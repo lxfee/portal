@@ -9,6 +9,7 @@ Scene::Scene() {
     extern const int WIDTH;
     extern const int HEIGHT;
     masterCamera = new Camera();
+    doorCamera = new Camera();
 
     
     vector<string> skyBoxPath = {
@@ -25,13 +26,13 @@ Scene::Scene() {
 	Tskybox = Texture::CubeTextureFromFile(skyBoxPath, "cubeTexture");
 	
     
-    vector<Vertex> debugPannelInfo = {
-		{glm::vec3( 0,  0, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 1.0f)},
-		{glm::vec3( -1, 0, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 1.0f)},
-		{glm::vec3(-1, -1, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
-		{glm::vec3(0,  -1, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0f)},
+    vector<Vertex> pannelInfo = {
+		{glm::vec3( 0.0,  0.0, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 1.0f)},
+		{glm::vec3(-1.0,  0.0, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 1.0f)},
+		{glm::vec3(-1.0, -1.0, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3( 0.0, -1.0, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0f)},
 	};
-    debugPannel = new Model({ Mesh(debugPannelInfo, {0, 1, 2, 2, 3, 0}, {}) });
+    debugPannel = new Model({ Mesh(pannelInfo, {0, 1, 2, 2, 3, 0}, {}) });
 
     skybox = new Model("./models/cube/cube.obj");
     skybox->scale = glm::vec3(500);
@@ -53,6 +54,15 @@ Scene::Scene() {
 	floor = new Model({Mesh(floorInfo, {0, 1, 2, 2, 3, 0}, {Texture::TextureFromFile("./models/floor.png", "floor")})});
     floor->scale = glm::vec3(1000);
 	floor->rotation[0] = 90;
+
+    vector<Vertex> doorInfo = {
+		{glm::vec3( 0.5,  0.5, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 1.0f)},
+		{glm::vec3(-0.5,  0.5, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 1.0f)},
+		{glm::vec3(-0.5, -0.5, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
+		{glm::vec3( 0.5, -0.5, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0f)},
+	};
+    doorR = new Model({Mesh(doorInfo, {0, 1, 2, 2, 3, 0}, {})}); 
+    doorB = new Model({Mesh(doorInfo, {0, 1, 2, 2, 3, 0}, {})}); 
     
     int pointLightNumber = 4;
     dirLight = new DirLight();
@@ -63,7 +73,7 @@ Scene::Scene() {
 
 	Model* nano = new Model("./models/namo/nanosuit.obj");
     
-	// objects["nano"] = nano;
+	// objects.push_back(nano);
     objects.push_back(floor);
 
     glasses.push_back(glass);
