@@ -10,7 +10,8 @@ Scene::Scene() {
     extern const int HEIGHT;
     masterCamera = new Camera();
     doorCamera = new Camera();
-
+    doorCamera->pannel = new glm::vec4();
+    
     
     vector<string> skyBoxPath = {
         "./models/skybox/right.jpg",
@@ -77,6 +78,12 @@ Scene::Scene() {
     objects.push_back(floor);
 
     glasses.push_back(glass);
+
+    doorB->rotation = glm::vec3(0, 0, 0);
+	doorB->translation = glm::vec3(5, 5, 0);
+
+    doorR->rotation = glm::vec3(0, 0, 0);
+	doorR->translation = glm::vec3(0, 5, 0);
 
     steve = new Steve();
 }  

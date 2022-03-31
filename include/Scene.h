@@ -32,4 +32,6 @@ class Scene {
         Texture TDirDepth;  // 平行光阴影
         Texture TS, TC;     // 用于帧缓冲
         Texture Tskybox;    // 立方体贴图，用于天空盒
+
+
 };

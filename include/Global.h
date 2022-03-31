@@ -8,6 +8,7 @@
 #include <GL/glew.h>
 #include <map>
 #include <set>
+#include <stack>
 #include <GL/freeglut.h>
 #include <GL/freeglut_ext.h>
 #include <glm/glm.hpp>

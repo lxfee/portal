@@ -13,10 +13,29 @@ glm::mat4 Camera::getViewMatrix() {
 	return glm::lookAt(eye, dir + eye, up);
 }
 
+glm::mat4 Camera::getClippedProjectionMatrix(glm::mat4 viewMat, glm::mat4 projMat, glm::vec4 clipPlane) { //四维向量表示门平面的解析式，向量+点
+	clipPlane = glm::inverse(glm::transpose(viewMat)) * clipPlane;
+	glm::vec4 q;
+	q.x = (glm::sign(clipPlane.x) + projMat[2][0]) / projMat[0][0];
+	q.y = (glm::sign(clipPlane.y) + projMat[2][1]) / projMat[1][1];
+	q.z = -1.0F;
+	q.w = (1.0F + projMat[2][2]) / projMat[3][2];
+	glm::vec4 c = clipPlane * (2.0f / glm::dot(clipPlane, q));
+	projMat[0][2] = c.x;
+	projMat[1][2] = c.y;
+	projMat[2][2] = c.z + 1.0F;
+	projMat[3][2] = c.w;
+	return projMat;
+}
+
 glm::mat4 Camera::getProjectionMatrix() {
 	switch(projMode) {
-		case PERSPECTIVE: return glm::perspective(glm::radians(fov), aspect, near, far);
-		case ORTHO: return glm::ortho(-scale, scale, -scale, scale, this->near, this->far);
+		case PERSPECTIVE: 
+			if(!pannel) return glm::perspective(glm::radians(fov), aspect, near, far);
+			else return getClippedProjectionMatrix(getViewMatrix(), glm::perspective(glm::radians(fov), aspect, near, far), *pannel);
+		case ORTHO: 
+			if(!pannel) return glm::ortho(-scale, scale, -scale, scale, this->near, this->far);
+			else return getClippedProjectionMatrix(getViewMatrix(), glm::ortho(-scale, scale, -scale, scale, this->near, this->far), *pannel);
         default: assert(0);
     }
 }

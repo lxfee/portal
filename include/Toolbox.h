@@ -7,11 +7,16 @@ class FrameBuffer {
         FrameBuffer();
         ~FrameBuffer();
         void active();
-        static void attachColor(Texture tex, int channel = 0);
-        static void attachDepth(Texture tex);
-        static void attachDepthStencil(Texture tex);
-        static void restore(const FrameBuffer* fb = nullptr);
+        void attachColor(Texture tex, int channel = 0);
+        void attachDepth(Texture tex);
+        void attachDepthStencil(Texture tex);
+        static void restore(FrameBuffer* fb);
+        static void restore();
         bool CheckComplete();
+        static stack<unsigned int> fbos;
+        static void clear();
     private:
         unsigned int fbo;
 };
+
+glm::vec4 getPannel(glm::vec3 p1, glm::vec3 p2, glm::mat4 model);

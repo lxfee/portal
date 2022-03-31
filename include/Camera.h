@@ -11,6 +11,7 @@ public:
 
 	glm::mat4 getViewMatrix();
 	glm::mat4 getProjectionMatrix();
+	static glm::mat4 getClippedProjectionMatrix(glm::mat4 viewMat, glm::mat4 projMat, glm::vec4 clipPlane);
 
 	void mouseMotion(float mouseDeltaX, float mouseDeltaY);	// 相机鼠标事件
 	void mouseWheel(int button, int dir, int x, int y); 	// 相机移动函数
@@ -19,11 +20,14 @@ public:
 	void getPitchYaw(float &pitch, float &yaw);
 	void setPitchYaw(float pitch, float yaw);
 
+
+
 	/*********** 相机位置参数 **********/
 	glm::vec3 eye; // 相机位置
 	glm::vec3 dir; // 方向
 	glm::vec3 up;  // 相机上方朝向
 	float maxPitch = 89.0;
+	glm::vec4* pannel = nullptr;
 
 
 	/*********** 透视投影参数 **********/
