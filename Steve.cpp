@@ -141,17 +141,19 @@ void Steve::setup() {
 		component[i] = new Model((dir + objName[i]).c_str());
 	}
 }
-Steve& Steve::setAnimate(SteveComponent partName) {
-	isAnimate[partName] = true;
+Steve& Steve::setAnimate(SteveComponent partName, unsigned char mask) {
+	isAnimate[partName] = mask;
 	return *this;
 }
 void Steve::bindCamera() {
 	glm::mat4 model(1.0);
 	getModel(Head, model);
-	glm::vec3 eyeP1 = glm::vec3(model * glm::vec4(0, 0.4, 0, 1.0));
-	glm::vec3 eyeP2 = glm::vec3(model * glm::vec4(0, 0.4, 0.6, 1.0));
-	eye->eye = eyeP2;
-	eye->dir = glm::normalize(eyeP2 - eyeP1);
+	glm::vec3 eyeP1 = glm::vec3(0, 0.4, 0);
+	glm::vec3 normal = glm::vec3(0, 0, 1.0);
+	eyeP1 = glm::vec3(model * glm::vec4(eyeP1, 1.0f));
+	normal = glm::normalize(glm::vec3(glm::transpose(glm::inverse(model)) * glm::vec4(normal, 0.0f)));
+	eye->eye = eyeP1 + 0.6f * normal;
+	eye->dir = normal;
 }
 
 Steve::Steve() {
@@ -210,7 +212,7 @@ void Steve::playAnimate() {
 	switch(status) {
 		case STOP:
 			stoppingSeq->passLinearFrame(current, elapsedTime, frameTime, 0.1);
-			setAnimate(LeftArm).setAnimate(RightArm).setAnimate(LeftLeg).setAnimate(RightLeg);
+			setAnimate(LeftArm).setAnimate(RightArm).setAnimate(LeftLeg).setAnimate(RightLeg).setAnimate(Torso, 1);
 			setFrameData(current);
 			if(isWalking()) {
 				elapsedTime = 0;
@@ -220,7 +222,7 @@ void Steve::playAnimate() {
 			break;
 		case WALKING:
 			walkingSeq->passLinearFrame(current, elapsedTime, frameTime, 0.3);
-			setAnimate(LeftArm).setAnimate(RightArm).setAnimate(LeftLeg).setAnimate(RightLeg);
+			setAnimate(LeftArm).setAnimate(RightArm).setAnimate(LeftLeg).setAnimate(RightLeg).setAnimate(Torso, 1);
 			setFrameData(current);
 			if(!isWalking()) {
 				elapsedTime = 0;
@@ -241,8 +243,8 @@ void Steve::Draw(Shader* shader, ComponentNode* current, glm::mat4 model) {
 	if(!current) return ;
 	glm::mat4 localTranslation = glm::translate(glm::mat4(1.0), current->fatherConnectPoint);
 	glm::mat4 rotation(1.0);
-	rotation = glm::rotate(rotation, glm::radians(current->Deg.x), glm::vec3(1.0, 0.0, 0.0));
 	rotation = glm::rotate(rotation, glm::radians(current->Deg.y), glm::vec3(0.0, 1.0, 0.0));
+	rotation = glm::rotate(rotation, glm::radians(current->Deg.x), glm::vec3(1.0, 0.0, 0.0));
 	rotation = glm::rotate(rotation, glm::radians(current->Deg.z), glm::vec3(0.0, 0.0, 1.0));
 	model = model * localTranslation * rotation;
 	if(current->component) current->component->Draw(shader, model);
@@ -255,27 +257,32 @@ void Steve::Draw(Shader* shader, ComponentNode* current, glm::mat4 model) {
 void Steve::doMovement()  {
 	bindCamera();
 	playAnimate();
-	// extern unsigned char KEYBUFFER[1024];
-	// extern float frameTime;
-	// static int cur = 0;
-	// if(KEYBUFFER['-']) {
-	// 	cur = (cur + 1) % NUM_OF_COMPONENT;
-	// 	KEYBUFFER['-'] = false;
-	// }
-	// for(int i = 0; i < 6; i++) {
-	// 	if(KEYBUFFER['1' + i]) {
-	// 		index[cur]->Deg[i / 2] += (i % 2 == 0) ? -0.1 : 0.1;
-	// 	}
-	// }
-	// if(KEYBUFFER['p']) getFrameData().print();
 
-	
+	extern unsigned char KEYBUFFER[1024];
+	extern float frameTime;
+	float cameraSpeed = 10.0f * (frameTime / 1000);
+  	glm::vec3 translation(0);
+	glm::vec3 dir = normalize(eye->dir);
+	glm::vec3 up = glm::vec3(0, 1.0, 0);
+	glm::vec3 right = glm::normalize(glm::cross(up, dir));
+	glm::vec3 front = glm::normalize(glm::cross(right, up));
+
+	if(KEYBUFFER['w']) translation += front * cameraSpeed;
+  	if(KEYBUFFER['s']) translation -= front * cameraSpeed;
+  	if(KEYBUFFER['a']) translation += right * cameraSpeed;
+  	if(KEYBUFFER['d']) translation -= right * cameraSpeed;
+	if(KEYBUFFER[' ']) translation += up * cameraSpeed;
+	if(KEYBUFFER['q']) translation -= up * cameraSpeed;
+
+	position += translation;
 }
 
 void Steve::setFrameData(const FrameData& frame) {
 	for(int i = 0; i < NUM_OF_COMPONENT; i++) {
-		if(isAnimate[i]) index[i]->Deg = frame.data[i];
-		isAnimate[i] = false;
+		for(int j = 0; j < 3; j++) {
+			if(isAnimate[i] & (1 << j)) index[i]->Deg[j] = frame.data[i][j];
+		}
+		isAnimate[i] = 0;
 	}
 }
 
@@ -296,12 +303,12 @@ void Steve::mouseMotion(float mouseDeltaX, float mouseDeltaY) {
 	if(Deg.x < -89.9) Deg.x = -89.9;
 
 	Deg.y -= sensitivity * mouseDeltaX;
-	if(Deg.y > 80.0) {
-		Deg.y = 80.0;
+	if(Deg.y > 50.0) {
+		Deg.y = 50.0;
 		index[Torso]->Deg.y -= sensitivity * mouseDeltaX;
 	}
-	if(Deg.y < -80.0) {
-		Deg.y = -80.0;
+	if(Deg.y < -50.0) {
+		Deg.y = -50.0;
 		index[Torso]->Deg.y -= sensitivity * mouseDeltaX;
 	}
 	
@@ -318,8 +325,8 @@ bool Steve::getModel(SteveComponent partName, ComponentNode* current ,glm::mat4&
 	if(!current) return false;
 	glm::mat4 localTranslation = glm::translate(glm::mat4(1.0), current->fatherConnectPoint);
 	glm::mat4 rotation(1.0);
-	rotation = glm::rotate(rotation, glm::radians(current->Deg.x), glm::vec3(1.0, 0.0, 0.0));
 	rotation = glm::rotate(rotation, glm::radians(current->Deg.y), glm::vec3(0.0, 1.0, 0.0));
+	rotation = glm::rotate(rotation, glm::radians(current->Deg.x), glm::vec3(1.0, 0.0, 0.0));
 	rotation = glm::rotate(rotation, glm::radians(current->Deg.z), glm::vec3(0.0, 0.0, 1.0));
 	model = model * localTranslation * rotation;
 	if(current->partName == partName) return true;

@@ -13,7 +13,8 @@ Scene::Scene() {
     steve = new Steve();
     steve->position = glm::vec3(3, 3, 3);
 
-    masterCamera = new Camera();
+    // masterCamera = new Camera();
+    masterCamera = steve->eye;
     doorCamera = new Camera();
     doorCamera->pannel = new glm::vec4();
     

@@ -222,27 +222,9 @@ void Render::masterRender() {
 	renderDoor(5, scene->masterCamera, Door2);
 
 	// scene->portal->door1->rotation.x = 180 * sin(glutGet(GLUT_ELAPSED_TIME) / 5000.0);
-	scene->portal->door2->rotation.y = 180 * sin(glutGet(GLUT_ELAPSED_TIME) / 5000.0);
+	// scene->portal->door2->rotation.y = 180 * sin(glutGet(GLUT_ELAPSED_TIME) / 5000.0);
 	glDisable(GL_STENCIL_TEST);
 	sceneRender();
-	
-
-
-	
-
-	// glStencilMask(0x00);
-	// glDepthMask(GL_TRUE);
-	// glStencilFunc(GL_EQUAL, 0, 0xFF);
-	// sceneRender();
-	
-	// glassFbo->active();
-	// glassFbo->attachColor(scene->TC);
-	// glassFbo->attachDepthStencil(scene->TS);
-	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	// swap(scene->masterCamera, scene->steve->eye);
-	// sceneRender();
-	// swap(scene->masterCamera, scene->steve->eye);
-	// glassFbo->restore();
 	
 
 	// debugRender();

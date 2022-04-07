@@ -60,7 +60,7 @@ public:
 	void mouseMotion(float mouseDeltaX, float mouseDeltaY);
 	bool getModel(SteveComponent partName, glm::mat4& model);
 	bool getModel(SteveComponent partName, ComponentNode* current ,glm::mat4& model);
-
+	
 	Camera *eye; 
 	glm::vec3 position = glm::vec3(0, 10, 0);
 
@@ -82,8 +82,8 @@ private:
 	static bool isWalking();
 	AnimateSequence* walkingSeq;
 	AnimateSequence* stoppingSeq;
-	bool isAnimate[NUM_OF_COMPONENT];
-	Steve& setAnimate(SteveComponent partName);
+	unsigned char isAnimate[NUM_OF_COMPONENT];
+	Steve& setAnimate(SteveComponent partName, unsigned char mask = 7);
 	void setFrameData(const FrameData& frame);
 	FrameData getFrameData();
 };
