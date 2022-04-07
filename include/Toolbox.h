@@ -19,4 +19,4 @@ class FrameBuffer {
         unsigned int fbo;
 };
 
-glm::vec4 getPannel(glm::vec3 p1, glm::vec3 p2, glm::mat4 model);
+glm::vec4 getPannel(glm::vec3 p1, glm::vec3 normal, glm::mat4 model);

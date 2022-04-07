@@ -21,3 +21,5 @@ using namespace std;
 
 #define KEY_PRESS 0
 #define KEY_RELEASE 1
+
+#define EPSILON 1e-6

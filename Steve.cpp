@@ -148,8 +148,8 @@ Steve& Steve::setAnimate(SteveComponent partName) {
 void Steve::bindCamera() {
 	glm::mat4 model(1.0);
 	getModel(Head, model);
-	eyeP1 = glm::vec3(model * glm::vec4(0, 0.4, 0, 1.0));
-	eyeP2 = glm::vec3(model * glm::vec4(0, 0.4, 0.6, 1.0));
+	glm::vec3 eyeP1 = glm::vec3(model * glm::vec4(0, 0.4, 0, 1.0));
+	glm::vec3 eyeP2 = glm::vec3(model * glm::vec4(0, 0.4, 0.6, 1.0));
 	eye->eye = eyeP2;
 	eye->dir = glm::normalize(eyeP2 - eyeP1);
 }
@@ -292,8 +292,8 @@ void Steve::mouseMotion(float mouseDeltaX, float mouseDeltaY) {
 	float sensitivity = 0.2f;
 	glm::vec3& Deg = index[Head]->Deg;
 	Deg.x -= sensitivity * mouseDeltaY;
-	if(Deg.x > 89.0) Deg.x = 89.0;
-	if(Deg.x < -89.0) Deg.x = -89.0;
+	if(Deg.x > 89.9) Deg.x = 89.9;
+	if(Deg.x < -89.9) Deg.x = -89.9;
 
 	Deg.y -= sensitivity * mouseDeltaX;
 	if(Deg.y > 80.0) {
@@ -302,7 +302,7 @@ void Steve::mouseMotion(float mouseDeltaX, float mouseDeltaY) {
 	}
 	if(Deg.y < -80.0) {
 		Deg.y = -80.0;
-		index[Torso]->Deg.y -= sensitivity * mouseDeltaY;
+		index[Torso]->Deg.y -= sensitivity * mouseDeltaX;
 	}
 	
 	bindCamera();

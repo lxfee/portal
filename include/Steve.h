@@ -76,7 +76,6 @@ private:
 	ComponentNode* root;
 	ComponentNode* index[NUM_OF_COMPONENT];
 	static Model** component;
-	glm::vec3 eyeP1, eyeP2;
 
 	/********** 动画相关 ***********/
 	void playAnimate();

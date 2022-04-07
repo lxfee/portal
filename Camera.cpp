@@ -6,15 +6,22 @@ Camera::Camera(ProjectMode projMode) : projMode(projMode) {
 	dir = glm::vec3(0.0, 0.0, -1.0); 	// 初始up
 };
 
-Camera::~Camera() {}
+Camera::~Camera() {
+	if(pannel) delete pannel;
+}
 
 glm::mat4 Camera::getViewMatrix() {
-	mouseMotion(0, 0);
-	return glm::lookAt(eye, dir + eye, up);
+	if(glm::length(glm::cross(up, dir)) < EPSILON) {
+		if(glm::length(glm::cross(glm::vec3(1.0, 0.0, 0.0), dir)) > EPSILON) return glm::lookAt(eye, dir + eye, glm::vec3(1.0, 0.0, 0.0));
+		if(glm::length(glm::cross(glm::vec3(0.0, 1.0, 0.0), dir)) > EPSILON) return glm::lookAt(eye, dir + eye, glm::vec3(0.0, 1.0, 0.0));
+		if(glm::length(glm::cross(glm::vec3(0.0, 0.0, 1.0), dir)) > EPSILON) return glm::lookAt(eye, dir + eye, glm::vec3(0.0, 0.0, 1.0));
+	} else {
+		return glm::lookAt(eye, dir + eye, up);
+	}
 }
 
 glm::mat4 Camera::getClippedProjectionMatrix(glm::mat4 viewMat, glm::mat4 projMat, glm::vec4 clipPlane) { //四维向量表示门平面的解析式，向量+点
-	clipPlane = glm::inverse(glm::transpose(viewMat)) * clipPlane;
+	clipPlane = glm::transpose(glm::inverse(viewMat)) * clipPlane;
 	glm::vec4 q;
 	q.x = (glm::sign(clipPlane.x) + projMat[2][0]) / projMat[0][0];
 	q.y = (glm::sign(clipPlane.y) + projMat[2][1]) / projMat[1][1];
@@ -27,6 +34,8 @@ glm::mat4 Camera::getClippedProjectionMatrix(glm::mat4 viewMat, glm::mat4 projMa
 	projMat[3][2] = c.w;
 	return projMat;
 }
+
+
 
 glm::mat4 Camera::getProjectionMatrix() {
 	switch(projMode) {

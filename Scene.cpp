@@ -10,6 +10,9 @@ Scene::Scene() {
     extern const int HEIGHT;
 
     /****************************相机******************************/
+    steve = new Steve();
+    steve->position = glm::vec3(3, 3, 3);
+
     masterCamera = new Camera();
     doorCamera = new Camera();
     doorCamera->pannel = new glm::vec4();
@@ -38,7 +41,7 @@ Scene::Scene() {
     debugPannel = new Model({ Mesh(pannelInfo, {0, 1, 2, 2, 3, 0}, {}) });
 
     skybox = new Model("./models/cube/cube.obj");
-    skybox->scale = glm::vec3(500);
+    skybox->scale = glm::vec3(100);
     
     cube = new Model("./models/cube/cube.obj");
     
@@ -62,8 +65,7 @@ Scene::Scene() {
 	// objects.push_back(nano);
     objects.push_back(floor);
     glasses.push_back(glass);
-    steve = new Steve();
-    steve->position = glm::vec3(0, 0, 5);
+    
 
     /****************************光照******************************/
     int pointLightNumber = 4;

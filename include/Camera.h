@@ -26,7 +26,7 @@ public:
 	glm::vec3 eye; // 相机位置
 	glm::vec3 dir; // 方向
 	glm::vec3 up;  // 相机上方朝向
-	float maxPitch = 89.0;
+	float maxPitch = 89.9;
 	glm::vec4* pannel = nullptr;
 
 

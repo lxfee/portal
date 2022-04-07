@@ -19,8 +19,8 @@ out VS_OUT {
 
 void main() {
     vs_out.position = vec3(model * vec4(vPosition, 1.0));
-    // vs_out.normal = normalize(vec3(transpose(inverse(model)) * vec4(vNormal, 0))); // 法线要也要和顶点一起变换，如果scale放大缩小后，还要单位化 //TODO 证明，归一化问题
-    vs_out.normal = normalize(vec3(model * vec4(vNormal, 0))); // 似乎这样就可以，必须要归一化
+    vs_out.normal = normalize(vec3(transpose(inverse(model)) * vec4(vNormal, 0))); // 法线要也要和顶点一起变换，如果scale放大缩小后，还要单位化 //TODO 证明，归一化问题
+    // vs_out.normal = normalize(vec3(model * vec4(vNormal, 0))); // 似乎这样就可以，必须要归一化
     vs_out.texCoords = vTexture;
     vs_out.dirLightFpos = dirLightViewMatrix * vec4(vs_out.position, 1.0);
     gl_Position = projection * view * vec4(vs_out.position, 1.0); // 此处不要用透视除法，如果提前进行透视除法，裁剪会出错。

@@ -32,7 +32,7 @@ void FrameBuffer::attachDepth(Texture tex) {
 // attach 一定要在active之后
 void FrameBuffer::attachDepthStencil(Texture tex) {
     active();
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL, GL_TEXTURE_2D, tex.id, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, tex.id, 0);
     restore();
 }
 
@@ -61,9 +61,8 @@ bool FrameBuffer::CheckComplete() {
     return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 }
 
-glm::vec4 getPannel(glm::vec3 p1, glm::vec3 p2, glm::mat4 model) {
+glm::vec4 getPannel(glm::vec3 p1, glm::vec3 normal, glm::mat4 model) {
+    normal = glm::normalize(glm::vec3(glm::transpose(glm::inverse(model)) * glm::vec4(normal, 1.0)));
     p1 = glm::vec3(model * glm::vec4(p1, 1.0));
-    p2 = glm::vec3(model * glm::vec4(p2, 1.0));
-    glm::vec3 normal = glm::normalize(p2 - p1);
-    return glm::vec4(normal, glm::dot(normal, p1));
+    return glm::vec4(normal, -glm::dot(normal, p1));
 }
