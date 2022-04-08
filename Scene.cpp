@@ -11,7 +11,7 @@ Scene::Scene() {
 
     /****************************相机******************************/
     steve = new Steve();
-    steve->position = glm::vec3(3, 3, 3);
+    steve->position = glm::vec3(4, 1.8, 5);
 
     // masterCamera = new Camera();
     masterCamera = steve->eye;
@@ -27,11 +27,12 @@ Scene::Scene() {
         "./models/skybox/front.jpg",
         "./models/skybox/back.jpg"
     };
-	TDirDepth = Texture::TextureForFramebufferDepth("dirDepMap", 1024, 1024);
+	TDirDepth = Texture::TextureForFramebufferDepth("dirDepMap", 5000, 5000);
 	TS = Texture::TextureForFramebufferDepthStencil("sceneD", WIDTH, HEIGHT);
 	TC = Texture::TextureForFramebufferColor("sceneC", WIDTH, HEIGHT);
 	Tskybox = Texture::CubeTextureFromFile(skyBoxPath, "cubeTexture");
-	
+	TPointDepth = Texture::CubeTextureForFramebufferDepth("pointDepMap", 1024, 1024);
+
     /****************************模型******************************/
     vector<Vertex> pannelInfo = {
 		{glm::vec3( 0.0,  0.0, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 1.0f)},
@@ -62,17 +63,25 @@ Scene::Scene() {
 	floor->rotation[0] = 90;
 
     portal = new Portal();
-	Model* nano = new Model("./models/namo/nanosuit.obj");
+    Model* s = new Model("./models/scene/scene.obj");
+    lamp = new Model("./models/streetlamp/streetlamp.obj");
+    lamp->translation.x = 10;
+    // Model* nano = new Model("./models/namo/nanosuit.obj");
 	// objects.push_back(nano);
-    objects.push_back(floor);
+    // objects.push_back(floor);
+    objects.push_back(s);
     glasses.push_back(glass);
     
 
     /****************************光照******************************/
-    int pointLightNumber = 4;
+    int pointLightNumber = 1;
     dirLight = new DirLight();
     for(int i = 0; i < pointLightNumber; i++) {
 		pointLights.push_back(new PointLight());
 		pointLights[i]->setPosition(glm::vec3(20 * (i + 1), 20 * (i + 1), 0));
+		pointLights[i]->ambient = glm::vec3(1.0f, 1.0f, 0.8f);
+		// pointLights[i]->diffuse = 0.5f * glm::vec3(1.0f, 1.0f, 0.8f);
+		// pointLights[i]->diffuse = 0.5f * glm::vec3(1.0f, 1.0f, 0.8f);
+        
 	}
 }  

@@ -151,7 +151,7 @@ void Steve::bindCamera() {
 	glm::vec3 eyeP1 = glm::vec3(0, 0.4, 0);
 	glm::vec3 normal = glm::vec3(0, 0, 1.0);
 	eyeP1 = glm::vec3(model * glm::vec4(eyeP1, 1.0f));
-	normal = glm::normalize(glm::vec3(glm::transpose(glm::inverse(model)) * glm::vec4(normal, 0.0f)));
+	normal = glm::transpose(glm::inverse(glm::mat3(model))) * normal;
 	eye->eye = eyeP1 + 0.6f * normal;
 	eye->dir = normal;
 }
@@ -260,19 +260,20 @@ void Steve::doMovement()  {
 
 	extern unsigned char KEYBUFFER[1024];
 	extern float frameTime;
-	float cameraSpeed = 10.0f * (frameTime / 1000);
+	// 简单移动
+	float speed = 10.0f * (frameTime / 1000);
   	glm::vec3 translation(0);
 	glm::vec3 dir = normalize(eye->dir);
 	glm::vec3 up = glm::vec3(0, 1.0, 0);
 	glm::vec3 right = glm::normalize(glm::cross(up, dir));
 	glm::vec3 front = glm::normalize(glm::cross(right, up));
 
-	if(KEYBUFFER['w']) translation += front * cameraSpeed;
-  	if(KEYBUFFER['s']) translation -= front * cameraSpeed;
-  	if(KEYBUFFER['a']) translation += right * cameraSpeed;
-  	if(KEYBUFFER['d']) translation -= right * cameraSpeed;
-	if(KEYBUFFER[' ']) translation += up * cameraSpeed;
-	if(KEYBUFFER['q']) translation -= up * cameraSpeed;
+	if(KEYBUFFER['w']) translation += front * speed;
+  	if(KEYBUFFER['s']) translation -= front * speed;
+  	if(KEYBUFFER['a']) translation += right * speed;
+  	if(KEYBUFFER['d']) translation -= right * speed;
+	if(KEYBUFFER[' ']) translation += up * speed;
+	if(KEYBUFFER['q']) translation -= up * speed;
 
 	position += translation;
 }

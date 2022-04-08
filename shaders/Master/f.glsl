@@ -28,6 +28,8 @@ struct PointLight {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+    float farPlane;
 };  
 
 struct DirLight {
@@ -43,9 +45,45 @@ uniform DirLight dirLight;
 uniform int pointLightNumber;
 uniform PointLight pointLight[5];
 uniform vec3 eyePos;
+
+// 平行光深度贴图
 uniform sampler2D dirDepMap;
 
+// 点光源深度贴图
+uniform samplerCube pointDepMap;
 
+
+float ShadowCalculation(vec3 fragPos, vec3 lightPos, float farPlane, samplerCube depthMap) {
+     // Get vector between fragment position and light position
+    vec3 fragToLight = fragPos - lightPos;
+    // Use the light to fragment vector to sample from the depth map    
+    float closestDepth = texture(depthMap, fragToLight).r;
+    // It is currently in linear range between [0,1]. Re-transform back to original value
+    closestDepth *= farPlane;
+    // Now get current linear depth as the length between the fragment and light position
+    float currentDepth = length(fragToLight);
+    // Now test for shadows
+    float bias = 0.1; 
+    float shadow = 0.0;
+    float samples = 4.0;
+    float offset = 0.1;
+    for(float x = -offset; x < offset; x += offset / (samples * 0.5))
+    {
+        for(float y = -offset; y < offset; y += offset / (samples * 0.5))
+        {
+            for(float z = -offset; z < offset; z += offset / (samples * 0.5))
+            {
+                float closestDepth = texture(depthMap, fragToLight + vec3(x, y, z)).r; 
+                closestDepth *= farPlane;   // Undo mapping [0;1]
+                if(currentDepth - bias > closestDepth)
+                    shadow += 1.0;
+            }
+        }
+    }
+    shadow /= (samples * samples * samples);
+
+    return shadow;
+}
 
 float ShadowCalculation(vec4 lightFpos, sampler2D depMap) {
     // 执行透视除法
@@ -75,20 +113,34 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     // 衰减
     float distance    = length(light.position - fragPos);
-    float attenuation = min(1.0, 1.0 / (0.00005 + light.constant + light.linear * distance + light.quadratic * (distance * distance)));    
+    float attenuation = min(1.0, 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance)));    
     
     // 合并结果
     vec3 ambient, diffuse, specular;
-    ambient = light.ambient  * vec3(texture(material.textureDiffuse[0], fs_in.texCoords));
-    diffuse = light.diffuse  * diff * vec3(texture(material.textureDiffuse[0], fs_in.texCoords));
-    if(material.specularNum == 0) specular = light.specular * spec * vec3(1.0, 1.0, 1.0);
-    else specular = light.specular * spec * vec3(texture(material.textureSpecular[0], fs_in.texCoords));
-    
-    ambient  *= attenuation;
-    diffuse  *= attenuation;
-    specular *= attenuation;
 
-    return (/* ambient + */ specular /* + diffuse */ );
+    for(int i = 0; i < material.diffuseNum; i++) {
+        ambient += light.ambient  * vec3(texture(material.textureDiffuse[i], fs_in.texCoords));
+        diffuse += light.diffuse  * diff * vec3(texture(material.textureDiffuse[i], fs_in.texCoords));
+    }
+    
+    for(int i = 0; i < material.specularNum; i++) {
+        specular += light.specular * spec * vec3(texture(material.textureSpecular[i], fs_in.texCoords));
+    }
+    
+    // 默认材质
+    if(material.diffuseNum == 0) {
+        ambient += light.ambient  * vec3(0.8, 0.8, 0.8);
+        diffuse += light.diffuse  * diff * vec3(0.5, 0.5, 0.5);
+    }
+    if(material.specularNum == 0) {
+        specular = light.specular * spec * vec3(1.0, 1.0, 1.0);
+    }
+    
+    // ambient  *= attenuation;
+    // diffuse  *= attenuation;
+    // specular *= attenuation;
+    float shadow = ShadowCalculation(fs_in.position, light.position, light.farPlane, pointDepMap);
+    return ( (1.0 - shadow) * (specular + diffuse));
 }
 
 
@@ -103,10 +155,25 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     // 合并结果
     vec3 ambient, diffuse, specular;
-    ambient  = light.ambient  * vec3(texture(material.textureDiffuse[0], fs_in.texCoords));
-    diffuse  = light.diffuse  * diff * vec3(texture(material.textureDiffuse[0], fs_in.texCoords));
-    if(material.specularNum == 0) specular = light.specular * spec * vec3(1.0, 1.0, 1.0);
-    else specular = light.specular * spec * vec3(texture(material.textureSpecular[0], fs_in.texCoords));
+
+    for(int i = 0; i < material.diffuseNum; i++) {
+        ambient  = light.ambient  * vec3(texture(material.textureDiffuse[0], fs_in.texCoords));
+        diffuse  = light.diffuse  * diff * vec3(texture(material.textureDiffuse[0], fs_in.texCoords));
+    }
+
+    for(int i = 0; i < material.specularNum; i++) {
+        specular = light.specular * spec * vec3(texture(material.textureSpecular[0], fs_in.texCoords));
+    }
+    
+    // 默认材质
+    if(material.diffuseNum == 0) {
+        ambient += light.ambient  * vec3(0.8, 0.8, 0.8);
+        diffuse += light.diffuse  * diff * vec3(0.5, 0.5, 0.5);
+    }
+    if(material.specularNum == 0) {
+        specular = light.specular * spec * vec3(1.0, 1.0, 1.0);
+    }
+
     float shadow = ShadowCalculation(fs_in.dirLightFpos, dirDepMap);
     return (ambient + (1.0 - shadow) * (diffuse + specular));     
 }
@@ -123,6 +190,7 @@ void main() {
     
     result += CalcDirLight(dirLight, fs_in.normal, viewDir);
 
+    
     fColor = vec4(result, 1.0);
 }
 

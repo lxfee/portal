@@ -10,41 +10,72 @@ void Render::renderDepthMap() {
 	glViewport(0, 0, TDirDepth.width, TDirDepth.height);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	depthShader->use();
-	scene->dirLight->lightCamera->transCamera(depthShader);
+	scene->dirLight->transLightCamera(depthShader);
 	for(auto& obj : scene->objects) {
 		obj->Draw(depthShader);
 	}
 	scene->steve->Draw(depthShader);
+	scene->lamp->Draw(depthShader);
 	depthFbo->restore();
 
 	glViewport(0, 0, WIDTH, HEIGHT);
 }
 
-void Render::sceneRender() {
-	skyboxShader->use();
-	scene->Tskybox.transTexture(skyboxShader);
-	scene->masterCamera->transCamera(skyboxShader);
+void Render::renderCubeDepthMap() {
+	extern const int WIDTH;
+    extern const int HEIGHT;
+
+	auto& TPointDepth = scene->TPointDepth;
+    depthFbo->active();
+	depthFbo->attachCubeDepth(TPointDepth);
+	glViewport(0, 0, TPointDepth.width, TPointDepth.height);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	cubedepthShader->use();
 	
-	scene->skybox->Draw(skyboxShader);
+	scene->pointLights[0]->transLightCamera(cubedepthShader); // 只绘制一个点光源的阴影
+
+	for(auto& obj : scene->objects) {
+		obj->Draw(cubedepthShader);
+	}
+	scene->steve->Draw(cubedepthShader);
+	scene->lamp->Draw(cubedepthShader);
+	depthFbo->restore();
+	glViewport(0, 0, WIDTH, HEIGHT);
+}
+
+void Render::sceneRender() {
 
 	renderLightCube();
 	
+	renderSkybox();
+
 	masterShader->use();
 	scene->masterCamera->transCamera(masterShader);
 	masterShader->setInt("pointLightNumber", scene->pointLights.size());
+	
+	// 点光源
 	for(int i = 0; i < scene->pointLights.size(); i++) {
 		scene->pointLights[i]->transLight(("[" + to_string(i) + "]").c_str(), masterShader);
 	}
+	scene->TPointDepth.transTexture(masterShader, 8);
+
+	// 平行光
 	scene->dirLight->transLight("", masterShader);
 	masterShader->setMat4("dirLightViewMatrix", scene->dirLight->getLightViewMatrix());
-	scene->TDirDepth.transTexture(masterShader, 8);
+	scene->TDirDepth.transTexture(masterShader, 9);
 	for(auto& obj : scene->objects) {
 		obj->Draw(masterShader);
 	}
 	scene->steve->Draw(masterShader);
+	scene->lamp->Draw(masterShader);
 }
 
-
+void Render::renderSkybox() {
+	skyboxShader->use();
+	scene->Tskybox.transTexture(skyboxShader);
+	scene->masterCamera->transCamera(skyboxShader);
+	scene->skybox->Draw(skyboxShader);
+}
 
 void Render::renderGlass() {
 	glassShader->use();
@@ -80,7 +111,7 @@ void Render::renderLine(glm::vec3 p1, glm::vec3 normal, glm::mat4 model, int lin
     basicShader->setVec3("color", color);
 	basicShader->setMat4("model", glm::mat4(1.0));
 
-	normal = glm::normalize(glm::vec3(glm::transpose(glm::inverse(model)) * glm::vec4(normal, 0.0)));
+	normal = glm::transpose(glm::inverse(glm::mat3(model))) * normal;
 	p1 = glm::vec3(model * glm::vec4(p1, 1.0));
 
     glLineWidth(lineWide);				// 设置线宽
@@ -117,6 +148,8 @@ Render::Render(Scene* scene) : scene(scene) {
 	skyboxShader = new Shader("./shaders/Skybox/v.glsl", "./shaders/Skybox/f.glsl");
 	basicShader = new Shader("./shaders/Simple/v.glsl", "./shaders/Simple/f.glsl");
 	glassShader = new Shader("./shaders/Glass/v.glsl", "./shaders/Glass/f.glsl");
+	cubedepthShader = new Shader("./shaders/CubeShadow/v.glsl", "./shaders/CubeShadow/f.glsl", "./shaders/CubeShadow/g.glsl");
+
 	glassFbo = new FrameBuffer();
 	depthFbo = new FrameBuffer();
 }
@@ -146,8 +179,6 @@ void Render::renderDoor(int mx, Camera* faCamera, DoorType doorType, int cur) {
 		case Door1: door = scene->portal->door1; break;
 		case Door2: door = scene->portal->door2; break;
 	}
-	// if(glm::dot(glm::vec4(scene->masterCamera->eye, 1.0f), scene->portal->getDoorPannel((DoorType)(!doorType))) < 0) return ;
-	// if(glm::dot(scene->masterCamera->dir, glm::vec3(scene->portal->getDoorPannel((DoorType)(!doorType)))) > 0.1) return ;
 	if(cur > mx) return ;
 	auto camera = new Camera();
 	camera->pannel = new glm::vec4();
@@ -207,10 +238,14 @@ void Render::renderDoor(int mx, Camera* faCamera, DoorType doorType, int cur) {
 
 
 void Render::masterRender() {
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	scene->pointLights[0]->setPosition(scene->lamp->translation + glm::vec3(0, 10, 0));
+	
 
 	// 生成深度贴图
 	renderDepthMap();
+	renderCubeDepthMap();
 
 	glEnable(GL_STENCIL_TEST);
 	glEnable(GL_DEPTH_TEST);
@@ -218,14 +253,17 @@ void Render::masterRender() {
 	glStencilMask(0xFF);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	renderDoor(5, scene->masterCamera, Door1);
-	renderDoor(5, scene->masterCamera, Door2);
+
+	renderDoor(10, scene->masterCamera, Door1);
+	renderDoor(10, scene->masterCamera, Door2);
 
 	// scene->portal->door1->rotation.x = 180 * sin(glutGet(GLUT_ELAPSED_TIME) / 5000.0);
 	// scene->portal->door2->rotation.y = 180 * sin(glutGet(GLUT_ELAPSED_TIME) / 5000.0);
+	
+
 	glDisable(GL_STENCIL_TEST);
 	sceneRender();
 	
-
 	// debugRender();
+
 }

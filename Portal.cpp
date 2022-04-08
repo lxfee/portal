@@ -10,11 +10,11 @@ Portal::Portal() {
     door1 = new Model({Mesh(doorInfo, {0, 1, 2, 2, 3, 0}, {})}); 
     door2 = new Model({Mesh(doorInfo, {0, 1, 2, 2, 3, 0}, {})}); 
 	
-	door1->translation = glm::vec3(1.0, 3.0, 3.0);
-	door2->translation = glm::vec3(10.0, 3.0, 3.0);
-	door1->scale = glm::vec3(3.0, 5.0, 3.0);
-	door2->scale = glm::vec3(3.0, 5.0, 3.0);
-	door1->rotation.y = -90;
+	door1->translation = glm::vec3(-1.0, 4, 5);
+	door2->translation = glm::vec3(2.0, 4, -1);
+	door1->scale = glm::vec3(6.0, 8.0, 6.0);
+	door2->scale = glm::vec3(6.0, 8.0, 6.0);
+	door1->rotation.y = 0;
 	door2->rotation.y = 90;
 }
 
@@ -45,9 +45,10 @@ void Portal::updateDoorCamera(Camera* masterCamera, Camera* doorCamera, DoorType
 	auto up = masterCamera->up;
 	auto model = getDoorModel(doorType);
 	p1 = glm::vec3(model * glm::vec4(p1, 1.0));
-	normal = glm::normalize(glm::vec3(glm::transpose(glm::inverse(model)) * glm::vec4(normal, 1.0)));
-	up = glm::normalize(glm::vec3(glm::transpose(glm::inverse(model)) * glm::vec4(up, 1.0)));
+	normal = glm::transpose(glm::inverse(glm::mat3(model))) * normal;
+	up = glm::transpose(glm::inverse(glm::mat3(model))) * up;
 	doorCamera->dir = normal;
 	doorCamera->eye = p1;
 	doorCamera->up = up;
+	doorCamera->fov = masterCamera->fov;
 }

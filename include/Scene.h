@@ -28,11 +28,14 @@ class Scene {
         Model* debugPannel;     // 调试面板
         Model* skybox;          // 天空盒
         Portal* portal;
-        
-        /*--------------------------贴图--------------------------*/
-        Texture TDirDepth;  // 平行光阴影
-        Texture TS, TC;     // 用于帧缓冲
-        Texture Tskybox;    // 立方体贴图，用于天空盒
+        Model* lamp;
 
+        /*--------------------------纹理--------------------------*/
+        Texture TDirDepth;      // 平行光阴影
+        Texture TPointDepth;    // 点光源阴影
+        Texture TS, TC;         // 用于帧缓冲
+        Texture Tskybox;        // 立方体贴图，用于天空盒
+
+        
 
 };

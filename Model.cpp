@@ -189,8 +189,8 @@ glm::mat4 Model::getModelMatrix() {
     glm::mat4 trans(1.0f);
     trans = glm::translate(trans, translation);
     
-    trans = glm::rotate(trans, glm::radians(rotation.x), glm::vec3(1.0, 0.0, 0.0));
     trans = glm::rotate(trans, glm::radians(rotation.y), glm::vec3(0.0, 1.0, 0.0));
+    trans = glm::rotate(trans, glm::radians(rotation.x), glm::vec3(1.0, 0.0, 0.0));
     trans = glm::rotate(trans, glm::radians(rotation.z), glm::vec3(0.0, 0.0, 1.0));
 
     trans = glm::scale(trans, scale);

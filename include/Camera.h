@@ -33,7 +33,7 @@ public:
 	/*********** 透视投影参数 **********/
 	#undef near
 	#undef far
-	float near = 0.1, far = 1000.0;	// 近平面，远平面
+	float near = 0.01, far = 1000.0;	// 近平面，远平面
 	float fov = 45.0; 				// 透视投影参数，单位：度
 	float aspect = 1.777; 			// 长宽度比例，16:9
 

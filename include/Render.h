@@ -12,7 +12,9 @@ public:
     void sceneRender();
     void renderGlass();
     void renderLightCube();
+    void renderSkybox();
     void renderDepthMap();
+    void renderCubeDepthMap();
     void renderLine(glm::vec3 p1, glm::vec3 normal,glm::mat4 model = glm::mat4(1.0), int lineWide = 1, glm::vec3 color = glm::vec3(1.0, 0, 0));
     void debugRender();
     void renderDoorEntity(DoorType doorType);
@@ -26,7 +28,8 @@ public:
     Shader* skyboxShader; 
     Shader* basicShader;
     Shader* glassShader;
+    Shader* cubedepthShader;
     
     FrameBuffer* glassFbo;
     FrameBuffer* depthFbo;
-};
+}; 

@@ -5,20 +5,20 @@
 
 class Light {
 public:
-    ~Light();
-    glm::mat4 getLightViewMatrix();                                     // 获得光相机视矩阵
     virtual void transLight(const string &name, Shader* shader) = 0;    // 向着色器传入光照信息
-    virtual glm::vec3 doMovement() = 0;              // 光移动函数
-    Camera* lightCamera;
+    virtual glm::vec3 doMovement() = 0;                                 // 光移动函数
 };
 
 class DirLight : public Light {
 public:
     DirLight();
     void transLight(const string &name, Shader* shader);
+    void transLightCamera(Shader* shader);
     glm::vec3 doMovement();
     void setDirection(glm::vec3 direction);
     glm::vec3 getDirection();
+    glm::mat4 getLightViewMatrix();     // 获得光相机视矩阵
+    Camera* lightCamera;
 
     glm::vec3 ambient;      // 环境光系数
     glm::vec3 diffuse;      // 漫反射系数
@@ -34,6 +34,9 @@ public:
     glm::vec3 doMovement();
     void setPosition(glm::vec3 position);
     glm::vec3 getPosition();
+    vector<glm::mat4> getLightViewMatrix();
+    void transLightCamera(Shader* shader);
+    Camera* lightCamera;
 
     glm::vec3 ambient;      // 环境光系数 
     glm::vec3 diffuse;      // 漫反射系数

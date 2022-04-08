@@ -15,27 +15,29 @@ FrameBuffer::FrameBuffer() {
     glGenFramebuffers(1, &fbo);
 }
 
-// attach 一定要在active之前
 void FrameBuffer::attachColor(Texture tex, int channel) {
     active();
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + channel, GL_TEXTURE_2D, tex.id, 0);
     restore();
 }
 
-// attach 一定要在active之后
 void FrameBuffer::attachDepth(Texture tex) {
     active();
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex.id, 0);
     restore();
 }
 
-// attach 一定要在active之后
+void FrameBuffer::attachCubeDepth(Texture tex) {
+    active();
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, tex.id, 0);
+    restore();
+}
+
 void FrameBuffer::attachDepthStencil(Texture tex) {
     active();
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, tex.id, 0);
     restore();
 }
-
 
 void FrameBuffer::active() {
     fbos.push(fbo);
@@ -62,7 +64,7 @@ bool FrameBuffer::CheckComplete() {
 }
 
 glm::vec4 getPannel(glm::vec3 p1, glm::vec3 normal, glm::mat4 model) {
-    normal = glm::normalize(glm::vec3(glm::transpose(glm::inverse(model)) * glm::vec4(normal, 1.0)));
+    normal = glm::transpose(glm::inverse(glm::mat3(model))) * normal;
     p1 = glm::vec3(model * glm::vec4(p1, 1.0));
     return glm::vec4(normal, -glm::dot(normal, p1));
 }

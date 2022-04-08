@@ -11,6 +11,7 @@ struct Texture {
 
     static Texture TextureFromFile(string path, string name, string type = "textureDiffuse");
     static Texture CubeTextureFromFile(vector<string> path, string name, string type = "cubeTexture");
+    static Texture CubeTextureForFramebufferDepth(string name, int width, int height, string type = "cubeTexture");
     static Texture TextureForFramebufferColor(string name, int width, int height, string type = "textureDiffuse");
     static Texture TextureForFramebufferDepth(string name, int width, int height, string type = "textureDiffuse");
     static Texture TextureForFramebufferDepthStencil(string name, int width, int height, string type = "textureDiffuse");

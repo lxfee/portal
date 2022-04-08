@@ -1,10 +1,7 @@
 #include "Light.h"
 
-Light::~Light() {
-	delete lightCamera;
-}
 
-glm::mat4 Light::getLightViewMatrix() {
+glm::mat4 DirLight::getLightViewMatrix() {
     return lightCamera->getProjectionMatrix() * lightCamera->getViewMatrix();
 }
 
@@ -15,10 +12,16 @@ void DirLight::transLight(const string &name, Shader* shader) {
     shader->setVec3("dirLight" + name + ".direction", direction);
 }
 
+void DirLight::transLightCamera(Shader* shader) {
+	shader->setMat4("shadowMatrice", getLightViewMatrix());
+}
+
 void DirLight::setDirection(glm::vec3 direction) {
 	lightCamera->dir = direction;
 	this->direction = direction;
 }
+
+
 
 glm::vec3 DirLight::getDirection() {
 	return direction;
@@ -33,27 +36,67 @@ glm::vec3 PointLight::getPosition() {
 	return position;
 }
 
+void PointLight::transLightCamera(Shader* shader) {
+	auto shadowMatrices = getLightViewMatrix();
+	for(int i = 0; i < 6; i++) {
+		shader->setMat4("shadowMatrices[" + to_string(i) + "]", shadowMatrices[i]);
+	}
+	shader->setVec3("lightPos", lightCamera->eye);
+	shader->setFloat("far_plane", lightCamera->far);
+}
 
 PointLight::PointLight() {
     constant = 1.0f;
-    linear = 0.007f;
-    quadratic = 0.0002f;
-	ambient = glm::vec3(0.5);
+    linear = 0.09f;
+    quadratic = 0.032f;
+	ambient = glm::vec3(0.2);
     diffuse = glm::vec3(0.6);
     specular = glm::vec3(0.2);
     position = glm::vec3(0, 30, 0);
 	lightCamera = new Camera(PERSPECTIVE);
-	lightCamera->dir = glm::vec3(0, -1, 0);
 	lightCamera->aspect = 1;
 	lightCamera->eye = position;
-	lightCamera->fov = 120;
+	lightCamera->fov = 90;
+	lightCamera->far = 100;
+	lightCamera->near = 1.5;
+}
+
+vector<glm::mat4> PointLight::getLightViewMatrix() {
+	vector<glm::mat4> shadowTransforms;
+	glm::mat4 shadowProj = lightCamera->getProjectionMatrix();
+
+	lightCamera->up = glm::vec3(0.0,-1.0,0.0);
+	lightCamera->dir = glm::vec3(1.0,0.0,0.0);
+	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
+
+	lightCamera->up = glm::vec3(0.0,-1.0,0.0);
+	lightCamera->dir = glm::vec3(-1.0,0.0,0.0);
+	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
+	
+	lightCamera->up = glm::vec3(0.0,0.0,1.0);
+	lightCamera->dir = glm::vec3(0.0,1.0,0.0);
+	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
+
+	lightCamera->up = glm::vec3(0.0,0.0,-1.0);
+	lightCamera->dir = glm::vec3(0.0,-1.0,0.0);
+	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
+	
+	lightCamera->up = glm::vec3(0.0,-1.0,0.0);
+	lightCamera->dir = glm::vec3(0.0,0.0,1.0);
+	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
+	
+	lightCamera->up = glm::vec3(0.0,-1.0,0.0);
+	lightCamera->dir = glm::vec3(0.0,0.0,-1.0);
+	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
+
+	return shadowTransforms;
 }
 
 DirLight::DirLight() {
 	ambient = glm::vec3(0.5);
     diffuse = glm::vec3(0.6);
     specular = glm::vec3(0.2);
-    direction = glm::vec3(0, -1, 0);
+    direction = glm::normalize(glm::vec3(0.5, -1, 0));
 	lightCamera = new Camera(ORTHO);
 	lightCamera->dir = direction;
 	lightCamera->scale = 50;
@@ -68,6 +111,7 @@ void PointLight::transLight(const string &name, Shader* shader) {
     shader->setFloat("pointLight" + name + ".constant", constant);
     shader->setFloat("pointLight" + name + ".linear", linear);
     shader->setFloat("pointLight" + name + ".quadratic",quadratic);
+    shader->setFloat("pointLight" + name + ".farPlane",lightCamera->far);
 }
 
 glm::vec3 PointLight::doMovement() {
