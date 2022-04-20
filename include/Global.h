@@ -7,6 +7,7 @@
 #include <cstring>
 #include <GL/glew.h>
 #include <map>
+#include <memory>
 #include <set>
 #include <stack>
 #include <GL/freeglut.h>

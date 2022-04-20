@@ -5,14 +5,14 @@ glm::mat4 DirLight::getLightViewMatrix() {
     return lightCamera->getProjectionMatrix() * lightCamera->getViewMatrix();
 }
 
-void DirLight::transLight(const string &name, Shader* shader) {
+void DirLight::transLight(const string &name, ShaderPtr shader) {
     shader->setVec3("dirLight" + name + ".ambient", ambient);
     shader->setVec3("dirLight" + name + ".diffuse", diffuse);
     shader->setVec3("dirLight" + name + ".specular", specular);
     shader->setVec3("dirLight" + name + ".direction", direction);
 }
 
-void DirLight::transLightCamera(Shader* shader) {
+void DirLight::transLightCamera(ShaderPtr shader) {
 	shader->setMat4("shadowMatrice", getLightViewMatrix());
 }
 
@@ -36,7 +36,7 @@ glm::vec3 PointLight::getPosition() {
 	return position;
 }
 
-void PointLight::transLightCamera(Shader* shader) {
+void PointLight::transLightCamera(ShaderPtr shader) {
 	auto shadowMatrices = getLightViewMatrix();
 	for(int i = 0; i < 6; i++) {
 		shader->setMat4("shadowMatrices[" + to_string(i) + "]", shadowMatrices[i]);
@@ -53,7 +53,7 @@ PointLight::PointLight() {
     diffuse = glm::vec3(0.6);
     specular = glm::vec3(0.2);
     position = glm::vec3(0, 30, 0);
-	lightCamera = new Camera(PERSPECTIVE);
+	lightCamera = make_shared<Camera>(PERSPECTIVE);
 	lightCamera->aspect = 1;
 	lightCamera->eye = position;
 	lightCamera->fov = 90;
@@ -97,13 +97,13 @@ DirLight::DirLight() {
     diffuse = glm::vec3(0.6);
     specular = glm::vec3(0.2);
     direction = glm::normalize(glm::vec3(0.5, -1, 0));
-	lightCamera = new Camera(ORTHO);
+	lightCamera = make_shared<Camera>(ORTHO);
 	lightCamera->dir = direction;
 	lightCamera->scale = 50;
 	lightCamera->eye = glm::vec3(0, 50, 0);
 }
 
-void PointLight::transLight(const string &name, Shader* shader) {
+void PointLight::transLight(const string &name, ShaderPtr shader) {
     shader->setVec3( "pointLight" + name + ".ambient", ambient);
     shader->setVec3( "pointLight" + name + ".diffuse", diffuse);
     shader->setVec3( "pointLight" + name + ".specular", specular);

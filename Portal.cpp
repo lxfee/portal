@@ -38,7 +38,7 @@ glm::vec4 Portal::getDoorPannel(DoorType doorType) {
 	}
 }
 
-void Portal::updateDoorCamera(Camera* masterCamera, Camera* doorCamera, DoorType doorType) {
+void Portal::updateDoorCamera(CameraPtr masterCamera, CameraPtr doorCamera, DoorType doorType) {
     if(doorCamera->pannel) *(doorCamera->pannel) = getDoorPannel(doorType);
     auto p1 = masterCamera->eye;
     auto normal = masterCamera->dir;

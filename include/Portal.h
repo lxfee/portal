@@ -10,6 +10,8 @@ public:
     Portal();
     glm::mat4 getDoorModel(DoorType doorType);
     glm::vec4 getDoorPannel(DoorType doorType);
-    void updateDoorCamera(Camera* masterCamera, Camera* doorCamera, DoorType doorType);
-    Model* door1, *door2;
+    void updateDoorCamera(CameraPtr masterCamera, CameraPtr doorCamera, DoorType doorType);
+    Model *door1, *door2;
 };
+
+typedef shared_ptr<Portal> PortalPtr;

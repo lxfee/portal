@@ -1,9 +1,20 @@
 #pragma once
 #include "Steve.h"
 
+ModelPtr Steve::component[NUM_OF_COMPONENT];
+bool Steve::first = true;
 
-Model** Steve::component = nullptr;
+Steve::~Steve() {
+	remove(root);
+}
 
+void Steve::remove(ComponentNode* current) {
+	if(!current) return ;
+	for(auto son : current->sonNode) {
+		remove(son);
+	}
+	delete current;
+}
 
 const glm::vec3 Steve::TorsoConnectPoint[NUM_OF_COMPONENT] = {
 	glm::vec3( 0, 0, 0),
@@ -127,7 +138,6 @@ const glm::vec3 Steve::componentSize[NUM_OF_COMPONENT] = {
 
 
 void Steve::setup() {
-	component = new Model*[NUM_OF_COMPONENT];
 	string dir = "./models/steve/";
 	vector<string> objName = {
 		"torso.obj",
@@ -138,7 +148,7 @@ void Steve::setup() {
 		"rightLeg.obj"
 	};
 	for(int i = 0; i < NUM_OF_COMPONENT; i++) {
-		component[i] = new Model((dir + objName[i]).c_str());
+		component[i] = make_shared<Model>((dir + objName[i]).c_str());
 	}
 }
 Steve& Steve::setAnimate(SteveComponent partName, unsigned char mask) {
@@ -157,8 +167,9 @@ void Steve::bindCamera() {
 }
 
 Steve::Steve() {
-	if(!component) {
+	if(first) {
 		setup();
+		first = false;
 	}
 	
 	for(int i = 0; i < NUM_OF_COMPONENT; i++) {
@@ -177,22 +188,19 @@ Steve::Steve() {
 	index[Torso]->sonNode.push_back(index[LeftArm ]);
 	index[Torso]->sonNode.push_back(index[LeftLeg ]);
 	root = index[Torso];
-	eye = new Camera();
-	
+	eye = make_shared<Camera>();
 	bindCamera();
 
-	walkingSeq = new AnimateSequence();
 	glm::vec3 f1[NUM_OF_COMPONENT] = {glm::vec3(0, 0, 0),glm::vec3(0.0668911, 0, 0),glm::vec3(-60, 0, 0),glm::vec3(55, 0, 0),glm::vec3(35, 0, 0),glm::vec3(-30, 0, 0)};
 	glm::vec3 f2[NUM_OF_COMPONENT] = {glm::vec3(0, 0, 0),glm::vec3(0, 0, 0),glm::vec3(50.0393, 0, 0),glm::vec3(-45, 0, 0),glm::vec3(-40, 0, 0),glm::vec3(25, 0, 0)};
 	glm::vec3 f3[NUM_OF_COMPONENT] = {glm::vec3(0, 0, 0),glm::vec3(0, 0, 0),glm::vec3(0, 0, 2),glm::vec3(0, 0, -2),glm::vec3(0, 0, 0),glm::vec3(0, 0, 0)};
-	walkingSeq->addFrame(FrameData(f1));
-	walkingSeq->addFrame(FrameData(f2));
+	walkingSeq.addFrame(FrameData(f1));
+	walkingSeq.addFrame(FrameData(f2));
 
-	stoppingSeq = new AnimateSequence();
-	stoppingSeq->addFrame(FrameData());
-	stoppingSeq->addFrame(f3, 10000);
-	stoppingSeq->addFrame(f3, 1000);
-	stoppingSeq->addFrame(FrameData(), 10000);
+	stoppingSeq.addFrame(FrameData());
+	stoppingSeq.addFrame(f3, 10000);
+	stoppingSeq.addFrame(f3, 1000);
+	stoppingSeq.addFrame(FrameData(), 10000);
 
 	memset(isAnimate, 0, sizeof isAnimate);
 }
@@ -211,22 +219,22 @@ void Steve::playAnimate() {
 
 	switch(status) {
 		case STOP:
-			stoppingSeq->passLinearFrame(current, elapsedTime, frameTime, 0.1);
+			stoppingSeq.passLinearFrame(current, elapsedTime, frameTime, 0.1);
 			setAnimate(LeftArm).setAnimate(RightArm).setAnimate(LeftLeg).setAnimate(RightLeg).setAnimate(Torso, 1);
 			setFrameData(current);
 			if(isWalking()) {
 				elapsedTime = 0;
-				stoppingSeq->setDefault();
+				stoppingSeq.setDefault();
 				status = WALKING;
 			}
 			break;
 		case WALKING:
-			walkingSeq->passLinearFrame(current, elapsedTime, frameTime, 0.3);
+			walkingSeq.passLinearFrame(current, elapsedTime, frameTime, 0.3);
 			setAnimate(LeftArm).setAnimate(RightArm).setAnimate(LeftLeg).setAnimate(RightLeg).setAnimate(Torso, 1);
 			setFrameData(current);
 			if(!isWalking()) {
 				elapsedTime = 0;
-				walkingSeq->setDefault();
+				walkingSeq.setDefault();
 				status = STOP;
 			}
 			break;
@@ -234,12 +242,12 @@ void Steve::playAnimate() {
 }
 
 
-void Steve::Draw(Shader* shader) {
+void Steve::Draw(ShaderPtr shader) {
 	glm::mat4 model = glm::translate(glm::mat4(1.0), position);
 	Draw(shader, root, model);
 }
 
-void Steve::Draw(Shader* shader, ComponentNode* current, glm::mat4 model) {
+void Steve::Draw(ShaderPtr shader, ComponentNode* current, glm::mat4 model) {
 	if(!current) return ;
 	glm::mat4 localTranslation = glm::translate(glm::mat4(1.0), current->fatherConnectPoint);
 	glm::mat4 rotation(1.0);
@@ -255,7 +263,6 @@ void Steve::Draw(Shader* shader, ComponentNode* current, glm::mat4 model) {
 
 
 void Steve::doMovement()  {
-	bindCamera();
 	playAnimate();
 
 	extern unsigned char KEYBUFFER[1024];
@@ -276,6 +283,7 @@ void Steve::doMovement()  {
 	if(KEYBUFFER['q']) translation -= up * speed;
 
 	position += translation;
+	bindCamera();
 }
 
 void Steve::setFrameData(const FrameData& frame) {

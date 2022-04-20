@@ -173,7 +173,7 @@ Texture Texture::CubeTextureFromFile(vector<string> path, string name, string ty
     return texture;
 }
 
-void Texture::transTexture(Shader* shader, int channel) const {
+void Texture::transTexture(ShaderPtr shader, int channel) const {
     glActiveTexture(GL_TEXTURE0 + channel);
     shader->setInt(name.c_str(), channel);
     if(type == "cubeTexture") glBindTexture(GL_TEXTURE_CUBE_MAP, id);

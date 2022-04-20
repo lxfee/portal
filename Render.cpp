@@ -1,5 +1,26 @@
 #include "Render.h"
 
+
+Render::Render(ScenePtr scene) : scene(scene) {
+    glClearColor(0.5, 0.5, 0.5, 1); 	// 设置背景颜色
+	glClearDepth(1); 					// 深度缓冲初始值
+	glClearStencil(0);					// 深度缓冲初始值
+	glEnable(GL_DEPTH_TEST);			// 开启深度测试
+	glEnable(GL_STENCIL_TEST);			// 开启深度测试
+    debugShader 	= make_shared<Shader>("./shaders/Debug/v.glsl", "./shaders/Debug/f.glsl");
+	masterShader 	= make_shared<Shader>("./shaders/Master/v.glsl", "./shaders/Master/f.glsl");
+	depthShader 	= make_shared<Shader>("./shaders/Shadow/v.glsl", "./shaders/Shadow/f.glsl");
+	skyboxShader 	= make_shared<Shader>("./shaders/Skybox/v.glsl", "./shaders/Skybox/f.glsl");
+	basicShader 	= make_shared<Shader>("./shaders/Simple/v.glsl", "./shaders/Simple/f.glsl");
+	glassShader 	= make_shared<Shader>("./shaders/Glass/v.glsl", "./shaders/Glass/f.glsl");
+	cubedepthShader = make_shared<Shader>("./shaders/CubeShadow/v.glsl", "./shaders/CubeShadow/f.glsl", "./shaders/CubeShadow/g.glsl");
+
+	depthFbo = make_shared<FrameBuffer>();
+	glassFbo = make_shared<FrameBuffer>();
+}
+
+
+
 void Render::renderDepthMap() {
 	extern const int WIDTH;
     extern const int HEIGHT;
@@ -44,11 +65,8 @@ void Render::renderCubeDepthMap() {
 }
 
 void Render::sceneRender() {
-
 	renderLightCube();
-	
 	renderSkybox();
-
 	masterShader->use();
 	scene->masterCamera->transCamera(masterShader);
 	masterShader->setInt("pointLightNumber", scene->pointLights.size());
@@ -136,23 +154,6 @@ void Render::renderLine(glm::vec3 p1, glm::vec3 normal, glm::mat4 model, int lin
     glBindVertexArray(0);
 }
 
-Render::Render(Scene* scene) : scene(scene) {
-    glClearColor(0.5, 0.5, 0.5, 1); 	// 设置背景颜色
-	glClearDepth(1); 					// 深度缓冲初始值
-	glClearStencil(0);					// 深度缓冲初始值
-	glEnable(GL_DEPTH_TEST);			// 开启深度测试
-	glEnable(GL_STENCIL_TEST);			// 开启深度测试
-    debugShader = new Shader("./shaders/Debug/v.glsl", "./shaders/Debug/f.glsl");
-	masterShader = new Shader("./shaders/Master/v.glsl", "./shaders/Master/f.glsl");
-	depthShader = new Shader("./shaders/Shadow/v.glsl", "./shaders/Shadow/f.glsl");
-	skyboxShader = new Shader("./shaders/Skybox/v.glsl", "./shaders/Skybox/f.glsl");
-	basicShader = new Shader("./shaders/Simple/v.glsl", "./shaders/Simple/f.glsl");
-	glassShader = new Shader("./shaders/Glass/v.glsl", "./shaders/Glass/f.glsl");
-	cubedepthShader = new Shader("./shaders/CubeShadow/v.glsl", "./shaders/CubeShadow/f.glsl", "./shaders/CubeShadow/g.glsl");
-
-	glassFbo = new FrameBuffer();
-	depthFbo = new FrameBuffer();
-}
 
 void Render::renderDoorEntity(DoorType doorType) {
 	basicShader->use();
@@ -173,14 +174,14 @@ void Render::renderDoorEntity(DoorType doorType) {
 }
 
 
-void Render::renderDoor(int mx, Camera* faCamera, DoorType doorType, int cur) {
+void Render::renderDoor(int mx, CameraPtr faCamera, DoorType doorType, int cur) {
 	Model* door;
 	switch(doorType) {
 		case Door1: door = scene->portal->door1; break;
 		case Door2: door = scene->portal->door2; break;
 	}
 	if(cur > mx) return ;
-	auto camera = new Camera();
+	auto camera = make_shared<Camera>();
 	camera->pannel = new glm::vec4();
 	glStencilMask(0xFF);
 	glDepthMask(GL_FALSE);
@@ -231,14 +232,12 @@ void Render::renderDoor(int mx, Camera* faCamera, DoorType doorType, int cur) {
 		glStencilMask(0xFF);
 		glClear(GL_STENCIL_BUFFER_BIT);
 	}
-
-	delete camera;
 }
 
 
 
 void Render::masterRender() {
-
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	scene->pointLights[0]->setPosition(scene->lamp->translation + glm::vec3(0, 10, 0));
 	
@@ -254,8 +253,8 @@ void Render::masterRender() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 
-	renderDoor(10, scene->masterCamera, Door1);
-	renderDoor(10, scene->masterCamera, Door2);
+	renderDoor(3, scene->masterCamera, Door1);
+	renderDoor(3, scene->masterCamera, Door2);
 
 	// scene->portal->door1->rotation.x = 180 * sin(glutGet(GLUT_ELAPSED_TIME) / 5000.0);
 	// scene->portal->door2->rotation.y = 180 * sin(glutGet(GLUT_ELAPSED_TIME) / 5000.0);
@@ -267,3 +266,4 @@ void Render::masterRender() {
 	// debugRender();
 
 }
+

@@ -1,6 +1,7 @@
 #pragma once
 #include "Global.h"
 #include "Shader.h"
+#include "Toolbox.h"
 
 typedef enum{ORTHO, PERSPECTIVE} ProjectMode;
 
@@ -11,12 +12,11 @@ public:
 
 	glm::mat4 getViewMatrix();
 	glm::mat4 getProjectionMatrix();
-	static glm::mat4 getClippedProjectionMatrix(glm::mat4 viewMat, glm::mat4 projMat, glm::vec4 clipPlane);
 
 	void mouseMotion(float mouseDeltaX, float mouseDeltaY);	// 相机鼠标事件
 	void mouseWheel(int button, int dir, int x, int y); 	// 相机移动函数
 	glm::vec3 doMovement(); 	// 相机移动函数
-	void transCamera(Shader* shader); 						// 往着色器传递相机
+	void transCamera(ShaderPtr shader); 						// 往着色器传递相机
 	void getPitchYaw(float &pitch, float &yaw);
 	void setPitchYaw(float pitch, float yaw);
 
@@ -43,3 +43,5 @@ public:
 private:
 	ProjectMode projMode; // 投影模式
 };
+
+typedef shared_ptr<Camera> CameraPtr;

@@ -5,9 +5,10 @@
 #include "Toolbox.h"
 
 
+
 class Render {
 public:
-    Render(Scene* scene);
+    Render(ScenePtr scene);
     void masterRender();
     void sceneRender();
     void renderGlass();
@@ -18,18 +19,20 @@ public:
     void renderLine(glm::vec3 p1, glm::vec3 normal,glm::mat4 model = glm::mat4(1.0), int lineWide = 1, glm::vec3 color = glm::vec3(1.0, 0, 0));
     void debugRender();
     void renderDoorEntity(DoorType doorType);
-    void renderDoor(int mx, Camera* faCamera, DoorType doorType, int cur = 1);
+    void renderDoor(int mx, CameraPtr faCamera, DoorType doorType, int cur = 1);
 
-    Scene* scene;
+    ScenePtr scene;
 
-    Shader* debugShader;
-    Shader* masterShader;
-    Shader* depthShader; 
-    Shader* skyboxShader; 
-    Shader* basicShader;
-    Shader* glassShader;
-    Shader* cubedepthShader;
+    ShaderPtr debugShader;
+    ShaderPtr masterShader;
+    ShaderPtr depthShader; 
+    ShaderPtr skyboxShader; 
+    ShaderPtr basicShader;
+    ShaderPtr glassShader;
+    ShaderPtr cubedepthShader;
     
-    FrameBuffer* glassFbo;
-    FrameBuffer* depthFbo;
+    FrameBufferPtr glassFbo;
+    FrameBufferPtr depthFbo;
 }; 
+
+

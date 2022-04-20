@@ -19,7 +19,7 @@ enum  SteveComponent {
 struct ComponentNode {
 	glm::vec3 fatherConnectPoint;
 	glm::vec3 Deg;
-	Model* component;
+	ModelPtr component;
 	SteveComponent partName;
 	vector<ComponentNode*> sonNode;
 };
@@ -51,17 +51,18 @@ private:
 
 class Steve {
 public:
+	~Steve();
 	Steve();
 
 	/************ 绘制机器人 ***********/
-	void Draw(Shader* shader);
-	void Draw(Shader* shader, ComponentNode* root, glm::mat4 model);
+	void Draw(ShaderPtr shader);
+	void Draw(ShaderPtr shader, ComponentNode* root, glm::mat4 model);
 	void doMovement();
 	void mouseMotion(float mouseDeltaX, float mouseDeltaY);
 	bool getModel(SteveComponent partName, glm::mat4& model);
 	bool getModel(SteveComponent partName, ComponentNode* current ,glm::mat4& model);
 	
-	Camera *eye; 
+	CameraPtr eye; 
 	glm::vec3 position = glm::vec3(0, 10, 0);
 
 	/********** 初始变换，确保变换后局部坐标系中原点位置就是连接点的位置 ***********/
@@ -72,19 +73,23 @@ private:
 	static void setup();											// 初始化
 	static const glm::vec3 componentSize[NUM_OF_COMPONENT]; 		// 各部位的大小
 	static const glm::vec3 TorsoConnectPoint[NUM_OF_COMPONENT]; 	// 各节点连接躯干位置（相对躯干，躯干坐标系）
+	void remove(ComponentNode* current);
 	void bindCamera();
 	ComponentNode* root;
 	ComponentNode* index[NUM_OF_COMPONENT];
-	static Model** component;
+	static ModelPtr component[NUM_OF_COMPONENT];
+	static bool first;
 
 	/********** 动画相关 ***********/
 	void playAnimate();
 	static bool isWalking();
-	AnimateSequence* walkingSeq;
-	AnimateSequence* stoppingSeq;
+	AnimateSequence walkingSeq;
+	AnimateSequence stoppingSeq;
 	unsigned char isAnimate[NUM_OF_COMPONENT];
 	Steve& setAnimate(SteveComponent partName, unsigned char mask = 7);
 	void setFrameData(const FrameData& frame);
 	FrameData getFrameData();
 };
+
+typedef shared_ptr<Steve> StevePtr;
 

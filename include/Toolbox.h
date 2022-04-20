@@ -20,4 +20,8 @@ class FrameBuffer {
         unsigned int fbo;
 };
 
+typedef shared_ptr<FrameBuffer> FrameBufferPtr;
+
 glm::vec4 getPannel(glm::vec3 p1, glm::vec3 normal, glm::mat4 model);
+
+glm::mat4 getClippedProjectionMatrix(glm::mat4 viewMat, glm::mat4 projMat, glm::vec4 clipPlane);

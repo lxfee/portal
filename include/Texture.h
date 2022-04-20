@@ -7,7 +7,8 @@ struct Texture {
     int width, height;
     string type;
     string name;  // 我们储存纹理的路径用于与其它纹理进行比较
-    void transTexture(Shader* shader, int channel = 0) const;
+    
+    void transTexture(ShaderPtr shader, int channel = 0) const;
 
     static Texture TextureFromFile(string path, string name, string type = "textureDiffuse");
     static Texture CubeTextureFromFile(vector<string> path, string name, string type = "cubeTexture");

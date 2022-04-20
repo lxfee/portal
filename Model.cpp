@@ -37,7 +37,7 @@ void Mesh::setupMesh() {
     glBindVertexArray(0);
 } 
 
-void Mesh::Draw(Shader* shader, int amount) const {
+void Mesh::Draw(ShaderPtr shader, int amount) const {
     unsigned int diffuseNr = 0;
     unsigned int specularNr = 0;
     for(unsigned int i = 0; i < textures.size(); i++) {
@@ -69,14 +69,14 @@ void Mesh::Draw(Shader* shader, int amount) const {
     glBindVertexArray(0);
 }
 
-void Model::Draw(Shader* shader, glm::mat4 model, int amount) {
+void Model::Draw(ShaderPtr shader, glm::mat4 model, int amount) {
     shader->setMat4("model", model * getModelMatrix()); // 应用变换。
     for(unsigned int i = 0; i < meshes.size(); i++) {
         meshes[i].Draw(shader, amount);
     }
 }
 
-void Model::Draw(Shader* shader, int amount) {
+void Model::Draw(ShaderPtr shader, int amount) {
     Draw(shader, glm::mat4(1.0), amount);
 }
 

@@ -20,21 +20,6 @@ glm::mat4 Camera::getViewMatrix() {
 	}
 }
 
-glm::mat4 Camera::getClippedProjectionMatrix(glm::mat4 viewMat, glm::mat4 projMat, glm::vec4 clipPlane) { //四维向量表示门平面的解析式，向量+点
-	clipPlane = glm::transpose(glm::inverse(viewMat)) * clipPlane;
-	glm::vec4 q;
-	q.x = (glm::sign(clipPlane.x) + projMat[2][0]) / projMat[0][0];
-	q.y = (glm::sign(clipPlane.y) + projMat[2][1]) / projMat[1][1];
-	q.z = -1.0F;
-	q.w = (1.0F + projMat[2][2]) / projMat[3][2];
-	glm::vec4 c = clipPlane * (2.0f / glm::dot(clipPlane, q));
-	projMat[0][2] = c.x;
-	projMat[1][2] = c.y;
-	projMat[2][2] = c.z + 1.0F;
-	projMat[3][2] = c.w;
-	return projMat;
-}
-
 
 
 glm::mat4 Camera::getProjectionMatrix() {
@@ -88,7 +73,7 @@ void Camera::mouseWheel(int button, int dir, int x, int y) {
 	if(fov >= 120.0f) fov = 120.0f;
 }
 
-void Camera::transCamera(Shader* shader) {
+void Camera::transCamera(ShaderPtr shader) {
 	shader->setMat4("view", getViewMatrix());
 	shader->setMat4("projection", getProjectionMatrix());
 	shader->setVec3("eyePos", eye);

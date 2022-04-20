@@ -1,21 +1,15 @@
 #include "Scene.h"
 
-
-Scene::~Scene() {
-    // TODO 删除所有指针
-}
-
 Scene::Scene() {
     extern const int WIDTH;
     extern const int HEIGHT;
 
     /****************************相机******************************/
-    steve = new Steve();
+    steve = make_shared<Steve>();
     steve->position = glm::vec3(4, 1.8, 5);
 
-    // masterCamera = new Camera();
     masterCamera = steve->eye;
-    doorCamera = new Camera();
+    doorCamera = make_shared<Camera>();
     doorCamera->pannel = new glm::vec4();
     
     /****************************纹理******************************/
@@ -40,14 +34,15 @@ Scene::Scene() {
 		{glm::vec3(-1.0, -1.0, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
 		{glm::vec3( 0.0, -1.0, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0f)},
 	};
-    debugPannel = new Model({ Mesh(pannelInfo, {0, 1, 2, 2, 3, 0}, {}) });
+    vector<Mesh> pannelMesh{Mesh(pannelInfo, {0, 1, 2, 2, 3, 0}, {})};
+    debugPannel = make_shared<Model>(pannelMesh);
 
-    skybox = new Model("./models/cube/cube.obj");
+    skybox = make_shared<Model>("./models/cube/cube.obj");
     skybox->scale = glm::vec3(100);
     
-    cube = new Model("./models/cube/cube.obj");
+    cube = make_shared<Model>("./models/cube/cube.obj");
     
-    Model* glass = new Model("./models/cube/cube.obj");
+    ModelPtr glass = make_shared<Model>("./models/cube/cube.obj");
     glass->addTexture(Texture::TextureFromFile("./models/floor.png", "floor"));
     glass->translation = glm::vec3(0, 5, 0);
     glass->scale = glm::vec3(1, 1, 0.2);
@@ -58,26 +53,27 @@ Scene::Scene() {
 		{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)},
 		{glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 100.0f)},
 	};
-	floor = new Model({Mesh(floorInfo, {0, 1, 2, 2, 3, 0}, {Texture::TextureFromFile("./models/floor.png", "floor")})});
+    vector<Mesh> floorMesh{Mesh(floorInfo, {0, 1, 2, 2, 3, 0}, {Texture::TextureFromFile("./models/floor.png", "floor")})};
+	floor = make_shared<Model>(floorMesh);
     floor->scale = glm::vec3(1000);
 	floor->rotation[0] = 90;
 
-    portal = new Portal();
-    Model* s = new Model("./models/scene/scene.obj");
-    lamp = new Model("./models/streetlamp/streetlamp.obj");
+    portal = make_shared<Portal>();
+    ModelPtr sceneObj = make_shared<Model>("./models/scene/scene.obj");
+    lamp = make_shared<Model>("./models/streetlamp/streetlamp.obj");
     lamp->translation.x = 10;
-    // Model* nano = new Model("./models/namo/nanosuit.obj");
+    // ModelPtr nano = make_shared<Model>("./models/namo/nanosuit.obj");
 	// objects.push_back(nano);
     // objects.push_back(floor);
-    objects.push_back(s);
+    objects.push_back(sceneObj);
     glasses.push_back(glass);
     
 
     /****************************光照******************************/
     int pointLightNumber = 1;
-    dirLight = new DirLight();
+    dirLight = make_shared<DirLight>();
     for(int i = 0; i < pointLightNumber; i++) {
-		pointLights.push_back(new PointLight());
+		pointLights.emplace_back(make_shared<PointLight>());
 		pointLights[i]->setPosition(glm::vec3(20 * (i + 1), 20 * (i + 1), 0));
 		pointLights[i]->ambient = glm::vec3(1.0f, 1.0f, 0.8f);
 		// pointLights[i]->diffuse = 0.5f * glm::vec3(1.0f, 1.0f, 0.8f);

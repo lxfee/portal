@@ -21,7 +21,7 @@ float lastFrameTime = 0;
 unsigned char KEYBUFFER[1024];			// 键盘输入缓冲
 
 
-Scene* scene;
+ScenePtr scene;
 Render* render;
 Game* game;
 
@@ -30,7 +30,7 @@ Game* game;
 /*----------------------------------------------回调函数---------------------------------------------*/
 
 void build() {
-	scene = new Scene();
+	scene = make_shared<Scene>();
 	render = new Render(scene);
 	game = new Game(scene);
 }

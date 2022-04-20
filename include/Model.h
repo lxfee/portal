@@ -20,7 +20,7 @@ class Mesh {
         vector<Texture> textures;
         /*  函数  */
         Mesh(const vector<Vertex>& vertices, const vector<unsigned int>& indices, const vector<Texture>& textures);
-        void Draw(Shader* shader, int amount = 1) const ;
+        void Draw(ShaderPtr shader, int amount = 1) const ;
         void setInstanceMatrix(int locate);
     private:
         /*  渲染数据  */
@@ -38,8 +38,8 @@ class Model {
         Model(vector<Mesh> meshes) : translation(0), rotation(0), scale(1), buffer(0) {
             this->meshes = meshes;
         }
-        void Draw(Shader* shader, glm::mat4 model, int amount = 1);  // 注意，如果设置了变换矩阵，函数会先应用模型自身的变换，再应用变换矩阵 
-        void Draw(Shader* shader, int amount = 1);   
+        void Draw(ShaderPtr shader, glm::mat4 model, int amount = 1);  // 注意，如果设置了变换矩阵，函数会先应用模型自身的变换，再应用变换矩阵 
+        void Draw(ShaderPtr shader, int amount = 1);   
         void addTexture(Texture tex);
         void setInstanceMatrix(int locate, int amount, glm::mat4 InstanceMatrix[]);
         glm::mat4 getModelMatrix();
@@ -59,4 +59,5 @@ class Model {
         vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName); 
 };
 
+typedef shared_ptr<Model> ModelPtr;
 

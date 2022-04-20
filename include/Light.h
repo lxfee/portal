@@ -5,20 +5,20 @@
 
 class Light {
 public:
-    virtual void transLight(const string &name, Shader* shader) = 0;    // 向着色器传入光照信息
-    virtual glm::vec3 doMovement() = 0;                                 // 光移动函数
+    virtual void transLight(const string &name, ShaderPtr shader) = 0;      // 向着色器传入光照信息
+    virtual glm::vec3 doMovement() = 0;                                     // 光移动函数
 };
 
 class DirLight : public Light {
 public:
     DirLight();
-    void transLight(const string &name, Shader* shader);
-    void transLightCamera(Shader* shader);
+    void transLight(const string &name, ShaderPtr shader);
+    void transLightCamera(ShaderPtr shader);
     glm::vec3 doMovement();
     void setDirection(glm::vec3 direction);
     glm::vec3 getDirection();
     glm::mat4 getLightViewMatrix();     // 获得光相机视矩阵
-    Camera* lightCamera;
+    CameraPtr lightCamera;
 
     glm::vec3 ambient;      // 环境光系数
     glm::vec3 diffuse;      // 漫反射系数
@@ -30,21 +30,27 @@ private:
 class PointLight : public Light {
 public:
     PointLight();
-    void transLight(const string &name, Shader* shader);
+    void transLight(const string &name, ShaderPtr shader);
     glm::vec3 doMovement();
     void setPosition(glm::vec3 position);
     glm::vec3 getPosition();
     vector<glm::mat4> getLightViewMatrix();
-    void transLightCamera(Shader* shader);
-    Camera* lightCamera;
+    void transLightCamera(ShaderPtr shader);
+    CameraPtr lightCamera;
 
+    
     glm::vec3 ambient;      // 环境光系数 
     glm::vec3 diffuse;      // 漫反射系数
     glm::vec3 specular;     // 高光系数
+
     /*********** 距离衰减参数 **********/
     float constant;         // 常数项
     float linear;           // 一次项
     float quadratic;        // 二次项
+
 private:
     glm::vec3 position;     // 位置
 };
+
+typedef shared_ptr<DirLight> DirLightPtr;
+typedef shared_ptr<PointLight> PointLightPtr;

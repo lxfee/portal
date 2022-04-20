@@ -1,9 +1,8 @@
 #include "Game.h"
 
-Game::Game(Scene* scene) : scene(scene) {}
+Game::Game(ScenePtr scene) : scene(scene) {}
 
 void Game::idle() {
-    // scene->masterCamera->doMovement();
     extern unsigned char KEYBUFFER[1024];
     extern unsigned char KEYBUFFER[1024];
 	extern float frameTime;
@@ -20,7 +19,7 @@ void Game::idle() {
         control = 0;
     }
     if(control == 0) {
-    scene->steve->doMovement();
+	    scene->steve->doMovement();
     } if(control == 1){
         // 移动传送门
 
