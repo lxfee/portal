@@ -49,9 +49,9 @@ PointLight::PointLight() {
     constant = 1.0f;
     linear = 0.09f;
     quadratic = 0.032f;
-	ambient = glm::vec3(0.2);
-    diffuse = glm::vec3(0.6);
-    specular = glm::vec3(0.2);
+	ambient = glm::vec3(0.2f);
+    diffuse = glm::vec3(0.6f);
+    specular = glm::vec3(0.2f);
     position = glm::vec3(0, 30, 0);
 	lightCamera = make_shared<Camera>(PERSPECTIVE);
 	lightCamera->aspect = 1;
@@ -93,9 +93,9 @@ vector<glm::mat4> PointLight::getLightViewMatrix() {
 }
 
 DirLight::DirLight() {
-	ambient = glm::vec3(0.5);
-    diffuse = glm::vec3(0.6);
-    specular = glm::vec3(0.2);
+	ambient = glm::vec3(0.5f);
+    diffuse = glm::vec3(0.6f);
+    specular = glm::vec3(0.2f);
     direction = glm::normalize(glm::vec3(0.5, -1, 0));
 	lightCamera = make_shared<Camera>(ORTHO);
 	lightCamera->dir = direction;

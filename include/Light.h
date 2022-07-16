@@ -5,8 +5,8 @@
 
 class Light {
 public:
-    virtual void transLight(const string &name, ShaderPtr shader) = 0;      // 向着色器传入光照信息
-    virtual glm::vec3 doMovement() = 0;                                     // 光移动函数
+    virtual void transLight(const string &name, ShaderPtr shader) = 0;
+    virtual glm::vec3 doMovement() = 0;
 };
 
 class DirLight : public Light {
@@ -17,14 +17,14 @@ public:
     glm::vec3 doMovement();
     void setDirection(glm::vec3 direction);
     glm::vec3 getDirection();
-    glm::mat4 getLightViewMatrix();     // 获得光相机视矩阵
+    glm::mat4 getLightViewMatrix();
     CameraPtr lightCamera;
 
-    glm::vec3 ambient;      // 环境光系数
-    glm::vec3 diffuse;      // 漫反射系数
-    glm::vec3 specular;     // 高光系数
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
 private:
-    glm::vec3 direction;    // 方向
+    glm::vec3 direction;
 };
 
 class PointLight : public Light {
@@ -39,17 +39,17 @@ public:
     CameraPtr lightCamera;
 
     
-    glm::vec3 ambient;      // 环境光系数 
-    glm::vec3 diffuse;      // 漫反射系数
-    glm::vec3 specular;     // 高光系数
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
 
-    /*********** 距离衰减参数 **********/
-    float constant;         // 常数项
-    float linear;           // 一次项
-    float quadratic;        // 二次项
+    /*********** attenuation function **********/
+    float constant;
+    float linear;
+    float quadratic;
 
 private:
-    glm::vec3 position;     // 位置
+    glm::vec3 position;
 };
 
 typedef shared_ptr<DirLight> DirLightPtr;

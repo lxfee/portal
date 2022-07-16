@@ -17,7 +17,7 @@
 #include <glm/gtc/type_ptr.hpp>
 using namespace std;
 
-// 使用下面宏定义，支持旧的glut函数，提高兼容性
+// support old glut funcations, improve compability
 #define GL_SILENCE_DEPRECATION
 
 #define KEY_PRESS 0

@@ -6,18 +6,15 @@ Camera::Camera(ProjectMode projMode) : projMode(projMode) {
 	dir = glm::vec3(0.0, 0.0, -1.0); 	// 初始up
 };
 
-Camera::~Camera() {
-	if(pannel) delete pannel;
-}
+Camera::~Camera() {}
 
 glm::mat4 Camera::getViewMatrix() {
 	if(glm::length(glm::cross(up, dir)) < EPSILON) {
 		if(glm::length(glm::cross(glm::vec3(1.0, 0.0, 0.0), dir)) > EPSILON) return glm::lookAt(eye, dir + eye, glm::vec3(1.0, 0.0, 0.0));
 		if(glm::length(glm::cross(glm::vec3(0.0, 1.0, 0.0), dir)) > EPSILON) return glm::lookAt(eye, dir + eye, glm::vec3(0.0, 1.0, 0.0));
 		if(glm::length(glm::cross(glm::vec3(0.0, 0.0, 1.0), dir)) > EPSILON) return glm::lookAt(eye, dir + eye, glm::vec3(0.0, 0.0, 1.0));
-	} else {
-		return glm::lookAt(eye, dir + eye, up);
 	}
+	return glm::lookAt(eye, dir + eye, up);
 }
 
 
@@ -25,12 +22,11 @@ glm::mat4 Camera::getViewMatrix() {
 glm::mat4 Camera::getProjectionMatrix() {
 	switch(projMode) {
 		case PERSPECTIVE: 
-			if(!pannel) return glm::perspective(glm::radians(fov), aspect, near, far);
-			else return getClippedProjectionMatrix(getViewMatrix(), glm::perspective(glm::radians(fov), aspect, near, far), *pannel);
+			return glm::perspective(glm::radians(fov), aspect, near, far);
 		case ORTHO: 
-			if(!pannel) return glm::ortho(-scale, scale, -scale, scale, this->near, this->far);
-			else return getClippedProjectionMatrix(getViewMatrix(), glm::ortho(-scale, scale, -scale, scale, this->near, this->far), *pannel);
-        default: assert(0);
+			return glm::ortho(-scale, scale, -scale, scale, this->near, this->far);
+        default: 
+			return glm::mat4(1.0f);
     }
 }
 

@@ -1,8 +1,6 @@
 ﻿# cmake version
 cmake_minimum_required(VERSION 3.1)
 
-add_compile_options(-O3)
-
 # vcpkg
 
 set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")

@@ -5,12 +5,7 @@ Scene::Scene() {
     extern int HEIGHT;
 
     /****************************相机******************************/
-    steve = make_shared<Steve>();
-    steve->position = glm::vec3(4, 1.8, 5);
-
-    masterCamera = steve->eye;
-    doorCamera = make_shared<Camera>();
-    doorCamera->pannel = new glm::vec4();
+    masterCamera = make_shared<Camera>();
     
     /****************************纹理******************************/
     vector<string> skyBoxPath = {
@@ -35,7 +30,6 @@ Scene::Scene() {
 		{glm::vec3( 0.0, -1.0, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0f)},
 	};
     vector<Mesh> pannelMesh{Mesh(pannelInfo, {0, 1, 2, 2, 3, 0}, {})};
-    debugPannel = make_shared<Model>(pannelMesh);
 
     skybox = make_shared<Model>("./models/cube/cube.obj");
     skybox->scale = glm::vec3(100);
@@ -58,15 +52,10 @@ Scene::Scene() {
     floor->scale = glm::vec3(1000);
 	floor->rotation[0] = 90;
 
-    portal = make_shared<Portal>();
     ModelPtr sceneObj = make_shared<Model>("./models/scene/scene.obj");
     lamp = make_shared<Model>("./models/streetlamp/streetlamp.obj");
     lamp->translation.x = 10;
-    // ModelPtr nano = make_shared<Model>("./models/namo/nanosuit.obj");
-	// objects.push_back(nano);
-    // objects.push_back(floor);
     objects.push_back(sceneObj);
-    glasses.push_back(glass);
     
 
     /****************************光照******************************/
