@@ -1,8 +1,8 @@
 #include "Scene.h"
 
 Scene::Scene() {
-    extern const int WIDTH;
-    extern const int HEIGHT;
+    extern int WIDTH;
+    extern int HEIGHT;
 
     /****************************相机******************************/
     steve = make_shared<Steve>();

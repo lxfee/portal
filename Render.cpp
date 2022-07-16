@@ -22,8 +22,8 @@ Render::Render(ScenePtr scene) : scene(scene) {
 
 
 void Render::renderDepthMap() {
-	extern const int WIDTH;
-    extern const int HEIGHT;
+	extern int WIDTH;
+    extern int HEIGHT;
 
 	auto& TDirDepth = scene->TDirDepth;
     depthFbo->active();
@@ -43,8 +43,8 @@ void Render::renderDepthMap() {
 }
 
 void Render::renderCubeDepthMap() {
-	extern const int WIDTH;
-    extern const int HEIGHT;
+	extern int WIDTH;
+    extern int HEIGHT;
 
 	auto& TPointDepth = scene->TPointDepth;
     depthFbo->active();

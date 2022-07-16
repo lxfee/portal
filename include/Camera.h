@@ -5,6 +5,7 @@
 
 typedef enum{ORTHO, PERSPECTIVE} ProjectMode;
 
+
 class Camera {
 public:
 	Camera(ProjectMode projectMode = PERSPECTIVE);
@@ -28,7 +29,6 @@ public:
 	glm::vec3 up;  // 相机上方朝向
 	float maxPitch = 89.9;
 	glm::vec4* pannel = nullptr;
-
 
 	/*********** 透视投影参数 **********/
 	#undef near
