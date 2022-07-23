@@ -184,9 +184,9 @@ void main() {
     vec3 viewDir = normalize(eyePos - fs_in.position);
     vec3 result = vec3(0);
     
-    for(int i = 0; i < pointLightNumber; i++) {
-        result += CalcPointLight(pointLight[i], fs_in.normal, fs_in.position, viewDir);
-    }
+    // for(int i = 0; i < pointLightNumber; i++) {
+    //     result += CalcPointLight(pointLight[i], fs_in.normal, fs_in.position, viewDir);
+    // }
     
     result += CalcDirLight(dirLight, fs_in.normal, viewDir);
 

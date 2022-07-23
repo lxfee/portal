@@ -49,7 +49,7 @@ void Render::renderCubeDepthMap() {
 	glClear(GL_DEPTH_BUFFER_BIT);
 	cubedepthShader->use();
 	
-	scene->pointLights[0]->transLightCamera(cubedepthShader); // 只绘制一个点光源的阴影
+	scene->pointLights[0]->transLightCamera(cubedepthShader);
 
 	for(auto& obj : scene->objects) {
 		obj->Draw(cubedepthShader);
@@ -94,8 +94,6 @@ void Render::masterRender() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	scene->pointLights[0]->setPosition(scene->lamp->translation + glm::vec3(0, 10, 0));
 	
-
-	// 生成深度贴图
 	renderDepthMap();
 	renderCubeDepthMap();
 

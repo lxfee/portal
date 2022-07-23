@@ -17,7 +17,7 @@ void DirLight::transLightCamera(ShaderPtr shader) {
 }
 
 void DirLight::setDirection(glm::vec3 direction) {
-	lightCamera->dir = direction;
+	
 	this->direction = direction;
 }
 
@@ -65,28 +65,22 @@ vector<glm::mat4> PointLight::getLightViewMatrix() {
 	vector<glm::mat4> shadowTransforms;
 	glm::mat4 shadowProj = lightCamera->getProjectionMatrix();
 
-	lightCamera->up = glm::vec3(0.0,-1.0,0.0);
-	lightCamera->dir = glm::vec3(1.0,0.0,0.0);
+	lightCamera->setDirection(glm::vec3(1.0,0.0,0.0));
 	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
 
-	lightCamera->up = glm::vec3(0.0,-1.0,0.0);
-	lightCamera->dir = glm::vec3(-1.0,0.0,0.0);
+	lightCamera->setDirection(glm::vec3(-1.0,0.0,0.0));
 	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
 	
-	lightCamera->up = glm::vec3(0.0,0.0,1.0);
-	lightCamera->dir = glm::vec3(0.0,1.0,0.0);
+	lightCamera->setDirection(glm::vec3(0.0,1.0,0.0));
 	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
 
-	lightCamera->up = glm::vec3(0.0,0.0,-1.0);
-	lightCamera->dir = glm::vec3(0.0,-1.0,0.0);
+	lightCamera->setDirection(glm::vec3(0.0,-1.0,0.0));
 	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
 	
-	lightCamera->up = glm::vec3(0.0,-1.0,0.0);
-	lightCamera->dir = glm::vec3(0.0,0.0,1.0);
+	lightCamera->setDirection(glm::vec3(0.0,0.0,1.0));
 	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
 	
-	lightCamera->up = glm::vec3(0.0,-1.0,0.0);
-	lightCamera->dir = glm::vec3(0.0,0.0,-1.0);
+	lightCamera->setDirection(glm::vec3(0.0,0.0,-1.0));
 	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
 
 	return shadowTransforms;
@@ -98,7 +92,7 @@ DirLight::DirLight() {
     specular = glm::vec3(0.2f);
     direction = glm::normalize(glm::vec3(0.5, -1, 0));
 	lightCamera = make_shared<Camera>(ORTHO);
-	lightCamera->dir = direction;
+	lightCamera->setDirection(direction);
 	lightCamera->scale = 50;
 	lightCamera->eye = glm::vec3(0, 50, 0);
 }
@@ -143,7 +137,7 @@ glm::vec3 DirLight::doMovement() {
   	if(KEYBUFFER['d']) translation.x -= cameraSpeed;
 	direction += translation;
 	direction = glm::normalize(direction);
-	lightCamera->dir = direction;
+	lightCamera->setDirection(direction);
 	return translation;
 }
 

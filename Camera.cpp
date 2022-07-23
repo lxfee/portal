@@ -1,20 +1,25 @@
 #include "Camera.h"
+#define M_PI       3.14159265358979323846   // pi
 
 Camera::Camera(ProjectMode projMode) : projMode(projMode) { 
-	up = glm::vec3(0.0, 1.0, 0.0);  	// 初始UP
 	eye = glm::vec3(0.0, 0.0, 3.0); 	// 初始位置
-	dir = glm::vec3(0.0, 0.0, -1.0); 	// 初始up
+	pitch = 0.0f;
+	yaw = 0.0f;
 };
 
 Camera::~Camera() {}
 
+glm::mat4 Camera::getRotation() {
+	glm::mat4 rotat = glm::mat4(1.0f);
+	rotat = glm::rotate(rotat, glm::radians(yaw), glm::vec3(0.0f, 1.0f, 0.0f));
+	rotat = glm::rotate(rotat, glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f));
+	return rotat;
+}
+
 glm::mat4 Camera::getViewMatrix() {
-	if(glm::length(glm::cross(up, dir)) < EPSILON) {
-		if(glm::length(glm::cross(glm::vec3(1.0, 0.0, 0.0), dir)) > EPSILON) return glm::lookAt(eye, dir + eye, glm::vec3(1.0, 0.0, 0.0));
-		if(glm::length(glm::cross(glm::vec3(0.0, 1.0, 0.0), dir)) > EPSILON) return glm::lookAt(eye, dir + eye, glm::vec3(0.0, 1.0, 0.0));
-		if(glm::length(glm::cross(glm::vec3(0.0, 0.0, 1.0), dir)) > EPSILON) return glm::lookAt(eye, dir + eye, glm::vec3(0.0, 0.0, 1.0));
-	}
-	return glm::lookAt(eye, dir + eye, up);
+	glm::mat4 trans = glm::mat4(1.0f);
+	trans = glm::translate(trans, -eye);
+	return glm::inverse(getRotation()) * trans;
 }
 
 
@@ -35,7 +40,11 @@ glm::vec3 Camera::doMovement() {
 	extern float frameTime;
 	float cameraSpeed = 5.0f * (frameTime / 1000);
   	glm::vec3 translation(0);
-	dir = normalize(dir);
+	glm::vec4 dir4 = getRotation() * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
+	glm::vec4 up4 = getRotation() * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+	glm::vec3 dir(dir4.x, dir4.y, dir4.z);
+	glm::vec3 up(up4.x, up4.y, up4.z);
+
 	glm::vec3 right = glm::normalize(glm::cross(up, dir));
 	glm::vec3 front = glm::normalize(glm::cross(right, up));
 
@@ -54,13 +63,10 @@ void Camera::mouseMotion(float mouseDeltaX, float mouseDeltaY) {
 	float sensitivity = 0.2f;
 	float dpitch = sensitivity * mouseDeltaY;
 	float dyaw = sensitivity * mouseDeltaX; 
-	float pitch, yaw;
-	getPitchYaw(pitch, yaw);
 	pitch += dpitch;
-	yaw += dyaw;
-	if(pitch > maxPitch) pitch = maxPitch;
-	if(pitch < -maxPitch) pitch = -maxPitch;
-	setPitchYaw(pitch, yaw);
+	yaw -= dyaw;
+	if(pitch > 89.0) pitch = 89.0;
+	if(pitch < -89.0) pitch = -89.0;
 }
 
 void Camera::mouseWheel(int button, int dir, int x, int y) {
@@ -75,17 +81,22 @@ void Camera::transCamera(ShaderPtr shader) {
 	shader->setVec3("eyePos", eye);
 }
 
-void Camera::getPitchYaw(float &pitch, float &yaw) {
-	pitch = glm::degrees(asin(dir.y));
-	glm::vec3 right = glm::normalize(glm::cross(up, dir));
-	glm::vec3 front = glm::normalize(glm::cross(right, up));
-	yaw = glm::degrees(atan2(front.z, front.x));
-	if(isnan(yaw)) yaw = 0;
-}
-
-void Camera::setPitchYaw(float pitch, float yaw) {
-	dir.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-	dir.y = sin(glm::radians(pitch));
-	dir.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-	dir = glm::normalize(dir);
+void Camera::setDirection(glm::vec3 direction) {
+	direction = glm::normalize(direction);
+	float d = glm::dot(direction, glm::vec3(direction.x, 0.0f, direction.z));
+	if(fabs(d) < 0.00001) {
+		if(direction.y < 0)
+			pitch = -90.0f;
+		else 
+			pitch = 90.0f;
+		yaw = 0.0f;
+	} else {
+		pitch = 180.0 / M_PI * atan(direction.y / d * glm::length(glm::vec3(direction.x, 0.0f, direction.z)));
+		yaw = 180.0 / M_PI * atan2(direction.x, direction.z) - 90.0f;
+		// std::cout << std::endl;
+		// glm::vec4 dd = getRotation() * glm::vec4(0.0, 0.0, -1.0, 0.0);
+		// std::cout << dd.x << " " << dd.y << " " << dd.z << std::endl;
+		// std::cout << direction.x << " " << direction.y << " " << direction.z << std::endl;
+		// std::cout << std::endl;
+	}
 }

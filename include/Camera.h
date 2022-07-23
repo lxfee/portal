@@ -13,20 +13,19 @@ public:
 
 	glm::mat4 getViewMatrix();
 	glm::mat4 getProjectionMatrix();
+	glm::mat4 getRotation();
+
 
 	void mouseMotion(float mouseDeltaX, float mouseDeltaY);
 	void mouseWheel(int button, int dir, int x, int y);
 	glm::vec3 doMovement();
 	void transCamera(ShaderPtr shader);
-	void getPitchYaw(float &pitch, float &yaw);
-	void setPitchYaw(float pitch, float yaw);
-
+	void setDirection(glm::vec3 direction);
 
 
 	glm::vec3 eye;
-	glm::vec3 dir;
-	glm::vec3 up;
-	float maxPitch = 89.9f;
+	float pitch;
+	float yaw;
 
 	#undef near
 	#undef far
