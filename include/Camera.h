@@ -20,7 +20,6 @@ public:
 	void mouseWheel(int button, int dir, int x, int y);
 	glm::vec3 doMovement();
 	void transCamera(ShaderPtr shader);
-	void setDirection(glm::vec3 direction);
 
 
 	glm::vec3 eye;

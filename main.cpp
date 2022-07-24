@@ -67,7 +67,6 @@ void mouseMotion(int x, int y) {
 	mouseDeltaX = (float)x - lastX;
 	mouseDeltaY = lastY - (float)y;
 	scene->masterCamera->mouseMotion(mouseDeltaX, mouseDeltaY);
-	scene->dirLight->lightCamera->mouseMotion(mouseDeltaX, mouseDeltaY);
 
 	glutWarpPointer(MIDWIDTH, MIDHEIGHT);
 }

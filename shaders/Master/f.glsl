@@ -117,7 +117,6 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
     
     // 合并结果
     vec3 ambient, diffuse, specular;
-
     for(int i = 0; i < material.diffuseNum; i++) {
         ambient += light.ambient  * vec3(texture(material.textureDiffuse[i], fs_in.texCoords));
         diffuse += light.diffuse  * diff * vec3(texture(material.textureDiffuse[i], fs_in.texCoords));
@@ -136,11 +135,11 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
         specular = light.specular * spec * vec3(1.0, 1.0, 1.0);
     }
     
-    // ambient  *= attenuation;
-    // diffuse  *= attenuation;
-    // specular *= attenuation;
+    ambient  *= attenuation;
+    diffuse  *= attenuation;
+    specular *= attenuation;
     float shadow = ShadowCalculation(fs_in.position, light.position, light.farPlane, pointDepMap);
-    return ( (1.0 - shadow) * (specular + diffuse));
+    return ( (1.0 - shadow) * (ambient + specular + diffuse));
 }
 
 
@@ -184,9 +183,9 @@ void main() {
     vec3 viewDir = normalize(eyePos - fs_in.position);
     vec3 result = vec3(0);
     
-    // for(int i = 0; i < pointLightNumber; i++) {
-    //     result += CalcPointLight(pointLight[i], fs_in.normal, fs_in.position, viewDir);
-    // }
+    for(int i = 0; i < pointLightNumber; i++) {
+        result += CalcPointLight(pointLight[i], fs_in.normal, fs_in.position, viewDir);
+    }
     
     result += CalcDirLight(dirLight, fs_in.normal, viewDir);
 

@@ -80,23 +80,3 @@ void Camera::transCamera(ShaderPtr shader) {
 	shader->setMat4("projection", getProjectionMatrix());
 	shader->setVec3("eyePos", eye);
 }
-
-void Camera::setDirection(glm::vec3 direction) {
-	direction = glm::normalize(direction);
-	float d = glm::dot(direction, glm::vec3(direction.x, 0.0f, direction.z));
-	if(fabs(d) < 0.00001) {
-		if(direction.y < 0)
-			pitch = -90.0f;
-		else 
-			pitch = 90.0f;
-		yaw = 0.0f;
-	} else {
-		pitch = 180.0 / M_PI * atan(direction.y / d * glm::length(glm::vec3(direction.x, 0.0f, direction.z)));
-		yaw = 180.0 / M_PI * atan2(direction.x, direction.z) - 90.0f;
-		// std::cout << std::endl;
-		// glm::vec4 dd = getRotation() * glm::vec4(0.0, 0.0, -1.0, 0.0);
-		// std::cout << dd.x << " " << dd.y << " " << dd.z << std::endl;
-		// std::cout << direction.x << " " << direction.y << " " << direction.z << std::endl;
-		// std::cout << std::endl;
-	}
-}

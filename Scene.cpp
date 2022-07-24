@@ -59,14 +59,7 @@ Scene::Scene() {
     
 
     /****************************光照******************************/
-    int pointLightNumber = 1;
     dirLight = make_shared<DirLight>();
-    for(int i = 0; i < pointLightNumber; i++) {
-		pointLights.emplace_back(make_shared<PointLight>());
-		pointLights[i]->setPosition(glm::vec3(20 * (i + 1), 20 * (i + 1), 0));
-		pointLights[i]->ambient = glm::vec3(1.0f, 1.0f, 0.8f);
-		// pointLights[i]->diffuse = 0.5f * glm::vec3(1.0f, 1.0f, 0.8f);
-		// pointLights[i]->diffuse = 0.5f * glm::vec3(1.0f, 1.0f, 0.8f);
-        
-	}
+	pointLights.emplace_back(make_shared<PointLight>());
+	pointLights[0]->setPosition(lamp->translation + glm::vec3(0, 10, 0));
 }  

@@ -1,9 +1,17 @@
 #include "Light.h"
 
-
-glm::mat4 DirLight::getLightViewMatrix() {
-    return lightCamera->getProjectionMatrix() * lightCamera->getViewMatrix();
+DirLight::DirLight() {
+	ambient = glm::vec3(0.5f);
+    diffuse = glm::vec3(0.6f);
+    specular = glm::vec3(0.2f);
+    direction = glm::normalize(glm::vec3(0.5, -1, 0));
+	scale = 100;
+	position = glm::vec3(0, 50, 0);
+	viewnear = 1;
+	viewfar = 100;
+	updateLightViewMatrix();
 }
+
 
 void DirLight::transLight(const string &name, ShaderPtr shader) {
     shader->setVec3("dirLight" + name + ".ambient", ambient);
@@ -12,89 +20,60 @@ void DirLight::transLight(const string &name, ShaderPtr shader) {
     shader->setVec3("dirLight" + name + ".direction", direction);
 }
 
+void DirLight::updateLightViewMatrix() {
+	glm::mat4 lookat = glm::lookAt(position, position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 orthmat = glm::ortho(-scale, scale, -scale, scale, viewnear, viewfar);
+	lightViewMatrix = orthmat * lookat;
+}
+
 void DirLight::transLightCamera(ShaderPtr shader) {
-	shader->setMat4("shadowMatrice", getLightViewMatrix());
+	shader->setMat4("dirLightViewMatrix", lightViewMatrix);
 }
 
 void DirLight::setDirection(glm::vec3 direction) {
-	
 	this->direction = direction;
-}
-
-
-
-glm::vec3 DirLight::getDirection() {
-	return direction;
+	updateLightViewMatrix();
 }
 
 void PointLight::setPosition(glm::vec3 position) {
-	lightCamera->eye = position;
 	this->position = position;
-}
-
-glm::vec3 PointLight::getPosition() {
-	return position;
+	updateLightViewMatrix();
 }
 
 void PointLight::transLightCamera(ShaderPtr shader) {
-	auto shadowMatrices = getLightViewMatrix();
 	for(int i = 0; i < 6; i++) {
-		shader->setMat4("shadowMatrices[" + to_string(i) + "]", shadowMatrices[i]);
+		shader->setMat4("pointLightViewMatrixs[" + to_string(i) + "]", lightViewMatrixs[i]);
 	}
-	shader->setVec3("lightPos", lightCamera->eye);
-	shader->setFloat("far_plane", lightCamera->far);
+	shader->setVec3("lightPos", position);
+	shader->setFloat("far_plane", viewfar);
 }
 
 PointLight::PointLight() {
     constant = 1.0f;
-    linear = 0.09f;
-    quadratic = 0.032f;
+    linear = 0.05f;
+    quadratic = 0.012f;
+	
 	ambient = glm::vec3(0.2f);
     diffuse = glm::vec3(0.6f);
     specular = glm::vec3(0.2f);
     position = glm::vec3(0, 30, 0);
-	lightCamera = make_shared<Camera>(PERSPECTIVE);
-	lightCamera->aspect = 1;
-	lightCamera->eye = position;
-	lightCamera->fov = 90;
-	lightCamera->far = 100;
-	lightCamera->near = 1.5;
+
+	viewfar = 100;
+	viewnear = 1.5;
+
+	lightViewMatrixs.resize(6);
+	updateLightViewMatrix();
 }
 
-vector<glm::mat4> PointLight::getLightViewMatrix() {
-	vector<glm::mat4> shadowTransforms;
-	glm::mat4 shadowProj = lightCamera->getProjectionMatrix();
 
-	lightCamera->setDirection(glm::vec3(1.0,0.0,0.0));
-	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
-
-	lightCamera->setDirection(glm::vec3(-1.0,0.0,0.0));
-	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
-	
-	lightCamera->setDirection(glm::vec3(0.0,1.0,0.0));
-	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
-
-	lightCamera->setDirection(glm::vec3(0.0,-1.0,0.0));
-	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
-	
-	lightCamera->setDirection(glm::vec3(0.0,0.0,1.0));
-	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
-	
-	lightCamera->setDirection(glm::vec3(0.0,0.0,-1.0));
-	shadowTransforms.push_back(shadowProj * lightCamera->getViewMatrix());
-
-	return shadowTransforms;
-}
-
-DirLight::DirLight() {
-	ambient = glm::vec3(0.5f);
-    diffuse = glm::vec3(0.6f);
-    specular = glm::vec3(0.2f);
-    direction = glm::normalize(glm::vec3(0.5, -1, 0));
-	lightCamera = make_shared<Camera>(ORTHO);
-	lightCamera->setDirection(direction);
-	lightCamera->scale = 50;
-	lightCamera->eye = glm::vec3(0, 50, 0);
+void PointLight::updateLightViewMatrix() {
+	glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.0f, viewnear, viewfar);
+	lightViewMatrixs[0] = (shadowProj * glm::lookAt(position, glm::vec3(1.0,0.0,0.0) + position, glm::vec3(0.0,-1.0,0.0)));
+	lightViewMatrixs[1] = (shadowProj * glm::lookAt(position, glm::vec3(-1.0,0.0,0.0) + position, glm::vec3(0.0,-1.0,0.0)));
+	lightViewMatrixs[2] = (shadowProj * glm::lookAt(position, glm::vec3(0.0,1.0,0.0) + position, glm::vec3(0.0,0.0,1.0)));
+	lightViewMatrixs[3] = (shadowProj * glm::lookAt(position, glm::vec3(0.0,-1.0,0.0) + position, glm::vec3(0.0,0.0,-1.0)));
+	lightViewMatrixs[4] = (shadowProj * glm::lookAt(position, glm::vec3(0.0,0.0,1.0) + position, glm::vec3(0.0,-1.0,0.0)));
+	lightViewMatrixs[5] = (shadowProj * glm::lookAt(position, glm::vec3(0.0,0.0,-1.0) + position, glm::vec3(0.0,-1.0,0.0)));
 }
 
 void PointLight::transLight(const string &name, ShaderPtr shader) {
@@ -105,39 +84,5 @@ void PointLight::transLight(const string &name, ShaderPtr shader) {
     shader->setFloat("pointLight" + name + ".constant", constant);
     shader->setFloat("pointLight" + name + ".linear", linear);
     shader->setFloat("pointLight" + name + ".quadratic",quadratic);
-    shader->setFloat("pointLight" + name + ".farPlane",lightCamera->far);
+    shader->setFloat("pointLight" + name + ".farPlane",viewfar);
 }
-
-glm::vec3 PointLight::doMovement() {
-	extern unsigned char KEYBUFFER[1024];
-	extern float frameTime;
-	float cameraSpeed = 5.0f * (frameTime / 1000);
-  	glm::vec3 translation(0);
-	
-	if(KEYBUFFER['w']) translation.x += cameraSpeed;
-  	if(KEYBUFFER['s']) translation.x -= cameraSpeed;
-  	if(KEYBUFFER['a']) translation.y += cameraSpeed;
-  	if(KEYBUFFER['d']) translation.y -= cameraSpeed;
-	if(KEYBUFFER[' ']) translation.z += cameraSpeed;
-	if(KEYBUFFER['q']) translation.z -= cameraSpeed;
-	
-	position += translation;
-	lightCamera->eye = position;
-	return translation;
-}
-
-glm::vec3 DirLight::doMovement() {
-	extern unsigned char KEYBUFFER[1024];
-	extern float frameTime;
-	float cameraSpeed = 5.0f * (frameTime / 1000);
-  	glm::vec3 translation(0);
-	if(KEYBUFFER['w']) translation.z += cameraSpeed;
-  	if(KEYBUFFER['s']) translation.z -= cameraSpeed;
-  	if(KEYBUFFER['a']) translation.x += cameraSpeed;
-  	if(KEYBUFFER['d']) translation.x -= cameraSpeed;
-	direction += translation;
-	direction = glm::normalize(direction);
-	lightCamera->setDirection(direction);
-	return translation;
-}
-

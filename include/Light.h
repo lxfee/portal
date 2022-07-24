@@ -3,53 +3,48 @@
 #include "Global.h"
 #include "Camera.h"
 
-class Light {
-public:
-    virtual void transLight(const string &name, ShaderPtr shader) = 0;
-    virtual glm::vec3 doMovement() = 0;
-};
-
-class DirLight : public Light {
+class DirLight {
 public:
     DirLight();
     void transLight(const string &name, ShaderPtr shader);
     void transLightCamera(ShaderPtr shader);
-    glm::vec3 doMovement();
     void setDirection(glm::vec3 direction);
-    glm::vec3 getDirection();
-    glm::mat4 getLightViewMatrix();
-    CameraPtr lightCamera;
 
     glm::vec3 ambient;
     glm::vec3 diffuse;
     glm::vec3 specular;
 private:
     glm::vec3 direction;
+    glm::vec3 position;
+    float scale;
+    float viewfar, viewnear;
+    
+    void updateLightViewMatrix();
+    glm::mat4 lightViewMatrix;
 };
 
-class PointLight : public Light {
+class PointLight {
 public:
     PointLight();
     void transLight(const string &name, ShaderPtr shader);
-    glm::vec3 doMovement();
     void setPosition(glm::vec3 position);
-    glm::vec3 getPosition();
-    vector<glm::mat4> getLightViewMatrix();
     void transLightCamera(ShaderPtr shader);
-    CameraPtr lightCamera;
 
     
     glm::vec3 ambient;
     glm::vec3 diffuse;
     glm::vec3 specular;
 
-    /*********** attenuation function **********/
     float constant;
     float linear;
     float quadratic;
 
 private:
     glm::vec3 position;
+    float viewfar, viewnear;
+
+    void updateLightViewMatrix();
+    vector<glm::mat4> lightViewMatrixs;
 };
 
 typedef shared_ptr<DirLight> DirLightPtr;
